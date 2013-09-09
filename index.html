@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="SurvAccuracyMeasures : estimate accuracy measures for risk prediction markers from survival data" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>SurvAccuracyMeasures</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/mdbrown/survAccuracyMeasures">View on GitHub</a>
+
+          <h1 id="project_title">SurvAccuracyMeasures</h1>
+          <h2 id="project_tagline">estimate accuracy measures for risk prediction markers from survival data</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/mdbrown/survAccuracyMeasures/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/mdbrown/survAccuracyMeasures/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <p>This R package estimates accuracy measures for risk prediction markers from survival data. It consists of the function <code>survEstMeasures</code> which estimates the <strong>AUC</strong>, <strong>TPR(c)</strong>, <strong>FPR(c)</strong>, <strong>PPV(c)</strong>, and <strong>NPV(c)</strong> for for a specific timepoint and marker cutoff value <strong>c</strong>. Standard errors, and confidence intervals are also computed. Either analytic or bootstrap standard errors can be computed.</p>
+
+<p>For more information, see references below. </p>
+
+<h2>
+<a name="tutorial" class="anchor" href="#tutorial"><span class="octicon octicon-link"></span></a>Tutorial</h2>
+
+<div class="highlight highlight-r"><pre><span class="c">#download the package from github</span>
+<span class="c">if (!require("devtools")) install.packages("devtools")</span>
+<span class="c">devtools::install_github("survAccuracyMeasures", "mdbrown")</span>
+
+<span class="c">library(survAccuracyMeasures)</span>
+</pre></div>
+
+<pre><code>## Loading required package: survival Loading required package: splines
+</code></pre>
+
+<div class="highlight highlight-r"><pre>
+<span class="c"># simulated data for illustration</span>
+<span class="c">data(SimData)</span>
+<span class="c">head(SimData)</span>
+</pre></div>
+
+<pre><code>##   survTime status        Y
+## 1    2.564      0 -0.48210
+## 2    1.856      0  0.42668
+## 3   20.171      1 -0.79753
+## 4   20.950      1  0.18762
+## 5   23.277      1  0.08946
+## 6    6.052      1 -0.10689
+</code></pre>
+
+<p>Estimate all measures, using asymptotic normality to estimate standard errors. </p>
+
+<div class="highlight highlight-r"><pre><span class="c"># Estimate all the measures at future time 2, with a marker cutpoint at 0.</span>
+
+<span class="c">survEstMeasures(time = SimData$survTime, event = SimData$status, marker = SimData$Y, </span>
+<span class="c">    predict.time = 2, cutpoint = 0, SEmethod = "normal")</span>
+</pre></div>
+
+<pre><code>## 
+##         estimate     se      lower 0.95  upper 0.95
+## coef       1.131     0.066         1.002       1.260 
+## AUC        0.793     0.015         0.763       0.820 
+## TPR(c)     0.806     0.021         0.761       0.844 
+## FPR(c)     0.396     0.024         0.351       0.443 
+## PPV(c)     0.358     0.027         0.306       0.413 
+## NPV(c)     0.919     0.010         0.898       0.937 
+## 
+##  marker cutpoint: c = 0
+</code></pre>
+
+<p>Only estimate the <strong>AUC</strong> and <strong>TPR(0)</strong>. This time use bootstrapping to obtain the standard errors. </p>
+
+<div class="highlight highlight-r"><pre><span class="c">tmp &lt;- survEstMeasures(time = SimData$survTime, event = SimData$status, marker = SimData$Y, </span>
+<span class="c">    predict.time = 2, measures = c("AUC", "TPR"), SEmethod = "bootstrap", bootstraps = 50, </span>
+<span class="c">    cutpoint = 0)</span>
+<span class="c">tmp</span>
+</pre></div>
+
+<pre><code>## 
+##         estimate     se      lower 0.95  upper 0.95
+## coef       1.131     0.070         0.993       1.268 
+## AUC        0.793     0.016         0.760       0.823 
+## TPR(c)     0.806     0.024         0.756       0.848 
+## 
+##  marker cutpoint: c = 0
+</code></pre>
+
+<div class="highlight highlight-r"><pre><span class="c"># access the estimates</span>
+<span class="c">tmp$estimates</span>
+</pre></div>
+
+<pre><code>##   coef    AUC    TPR 
+## 1.1308 0.7934 0.8062
+</code></pre>
+
+<div class="highlight highlight-r"><pre>
+<span class="c"># and the confidence bounds</span>
+<span class="c">tmp$CIbounds</span>
+</pre></div>
+
+<pre><code>##         coef    AUC    TPR
+## upper 1.2683 0.8234 0.8484
+## lower 0.9934 0.7597 0.7556
+</code></pre>
+
+<p>For more information see <code>?survEstMeasures</code>. </p>
+
+<h3>
+<a name="references" class="anchor" href="#references"><span class="octicon octicon-link"></span></a>References</h3>
+
+<p>Pepe MS, Zheng Y, Jin Y. Evaluating the ROC performance of markers for future events. <em>Lifetime Data Analysis.</em> 2008, 14: 86-113.</p>
+
+<p>Zheng Y, Cai T, Pepe MS, Levy, W. Time-dependent predictive values of prognostic biomarkers with failure time outcome. <em>JASA</em> 2008, 103: 362-368.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">SurvAccuracyMeasures maintained by <a href="https://github.com/mdbrown">mdbrown</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
