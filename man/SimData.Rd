@@ -1,0 +1,28 @@
+\name{SimData}
+\alias{SimData}
+\docType{data}
+\title{
+ Simulated data for package 'SurvAccuracyMeasures'
+}
+\description{
+Survival data simulated from a Cox proportional hazards model with 20\% censoring. 
+}
+\usage{data(SimData)}
+\format{
+  A data frame with 500 observations on the following 3 variables.
+  \describe{
+    \item{\code{survTime}}{a numeric vector of survival time}
+    \item{\code{status}}{a numeric vector indicating event status, status = 1 for failure, while status = 0 for censored observations}
+    \item{\code{Y}}{a numeric vector of values for marker}
+
+  }
+}
+
+
+\examples{
+data(SimData)
+ 
+head(SimData)
+
+}
+\keyword{datasets}

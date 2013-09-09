@@ -1,0 +1,113 @@
+#' Estimate accuracy measures for a risk prediction marker from survival data
+#' 
+#' This function estimates the AUC, TPR(c), FPR(c), PPV(c), and NPV(c) for 
+#' for a specific timepoint and marker cutoff value c. Standard errors, and 
+#' confidence intervals are also computed. Either analytic or bootstrap
+#'  standard errors can be computed.
+#'  
+#' @param time numeric vector, time to event variable
+#' @param event numeric vector, indicator for the status of event of interest. event = 0 for censored observations, and event = 1 for event of interest. 
+#' @param marker numeric vector, marker variable of interest
+#' @param predict.time numeric value of the timepoint of interest for which to estimate the risk measures 
+#' @param measures character vector that can contain the following 'AUC', 'TPR', 'FPR', 'PPV', 'NPV' or 'all' (default).  
+#' @param cutoff numeric value indicating the value of the cutoff 'c' at which to estimate 'FPR', 'TPR', 'NPV' or 'PPV'. default is \code{median(marker)}.
+#' @param CImethod character string of either 'logit.transformed' (default) or 'standard' indicating whether normal approximated confidence intervals should be calculated using logistic transformed values or the standard method. 
+#' @param SEmethod character string of either 'normal'(default) or 'boostrap' indicating whether standard errors should be calculated analytically or via the bootstrap. The method to calculate the SE analytically is described in the paper referenced below. 
+#' @param bootstraps if SEmethod = 'bootstrap', number of bootstrap replicates to use to estimate the SE.  
+#' @param alpha alpha value for confidence intervals. (1-alpha)*100% confidence intervals are provided. default is alpha = 0.05. 
+#' 
+#' @return a list with components 
+#' \item{estimates}{point estimates for risk measures} 
+#' \item{se}{standard errors for estimates}
+#' \item{CIbounds}{bounds for (1-alpha)*100% confidence interval}
+#' \item{cutoff, CImethod, SEmethod, predict.time, alpha}{ function inputs}
+#' 
+#' @note During estimation, we fit a Cox proportional hazards model using the \code{coxph} function from the \code{Survival} package: \code{coxph(Surv(time, event)~Y)}. This function outputs information regarding the coefficient in this model called 'coef'.  
+#'
+#'
+#'@examples
+#'
+#' data(SimData)
+#' 
+#' tmp <- survEstMeasures(time =SimData$survTime, event = SimData$status, marker = SimData$Y, predict.time = 2, cutoff = 0)
+#' tmp
+#' 
+#' survEstMeasures(time =SimData$survTime, event = SimData$status, marker = SimData$Y, predict.time = 2, measures = c("AUC", "TPR"), SEmethod = 'bootstrap', bootstraps = 50, cutoff = 0)
+#' 
+survEstMeasures <- function(time, event, marker, predict.time, measures = c('all'), 
+                   cutoff = median(marker), CImethod = "logit.transformed", 
+                   SEmethod ="normal", bootstraps = 1000, alpha=0.05, yes.cutoff = FALSE){
+ 
+  #put checks here
+  if(length(cutoff)==0) cutoff = NA;  
+
+  #CImethod is either "standard" or "logit.transformed" 
+  if(!is.element(substr(CImethod, 1,4), c("stan", "logi"))) stop("CImethod must be either 'standard' or 'logit.transformed'")
+
+  #SEmethod is either "normal" or "boostrap"
+  if(!is.element(substr(SEmethod, 1,4), c("norm", "boot"))) stop("SEmethod must be either 'normal' or 'bootstrap'")
+  
+  if(is.element("all", measures)) measures <- c("AUC","TPR", "FPR", "PPV", "NPV")
+  
+  #make sure we have a cutoff if the measures call for it
+  if(any(c("TPR", "FPR", "PPV", "NPV") %in% measures) & is.na(cutoff)) stop("'cutoff' must be set in order to calculate 'FPR', 'TPR', 'PPV, 'NPV'")
+  N <- dim(time)[1]; if(is.null(N)) N = length(time)
+  
+  #end of checks
+  
+  
+  ## get estimates via getEstimates, also calculate the bootstrap se if necessary
+  
+  #build data frame for getEstimates
+  mydata <- as.data.frame(cbind(time, event, marker))
+  names(mydata) = c("xi", "di", "Y")
+
+  
+  if(SEmethod == "normal"){
+
+    myests <- getEstimates( data = mydata, cutoff = cutoff,  measures = measures, predict.time = predict.time, CalVar = TRUE, yes.cutoff = yes.cutoff)
+    
+  }else if(substr(SEmethod, 1,4)=="boot"){
+    bootstraps = round(bootstraps)
+    if(bootstraps <= 1) stop("bootstraps must be larger than 1")
+    myests <- getEstimates( data = mydata, cutoff = cutoff,  measures = measures, predict.time = predict.time, CalVar = FALSE)
+    
+    #bootstrap ci's
+    bootests <- matrix(ncol = length(myests$est), nrow = bootstraps)
+    for( b in 1:bootstraps){
+      bootests[b,] <- getEstimates( data = mydata[sample(1:N, replace = TRUE),], cutoff = cutoff,  measures = measures, predict.time = predict.time, CalVar = FALSE)$est    
+    }
+    myests$se <- apply(bootests, 2, sd)
+  }
+  
+   
+  #calculate confidence intervals
+  if(substr(CImethod, 1, 4)=="stan"){
+    
+    myests$CIbounds = data.frame(rbind(upper = myests$estimates - qnorm(alpha/2)*myests$se, 
+                 lower = myests$estimates - qnorm(1-alpha/2)*myests$se))
+    names(myests$CIbounds) = c("coef", measures)
+    
+  }else{
+    #logit transform everything but the coef
+  
+    myests$CIbounds = data.frame(rbind(upper = expit(logit(myests$estimates[-1]) - qnorm(alpha/2)*myests$se[-1]/(myests$estimates[-1]*(1-myests$estimates[-1]))), 
+                                       lower = expit(logit(myests$estimates[-1]) - qnorm(1-alpha/2)*myests$se[-1]/(myests$estimates[-1]*(1-myests$estimates[-1])))))
+    myests$CIbounds = cbind(data.frame(rbind(upper = myests$estimates[1] - qnorm(alpha/2)*myests$se[1], 
+                                       lower = myests$estimates[1] - qnorm(1-alpha/2)*myests$se[1])), myests$CIbounds)
+    names(myests$CIbounds) = c("coef", measures)
+    
+  }
+  names(myests$estimates) = c("coef", measures)
+  names(myests$se) = c("coef", measures)
+   
+  myests$cutoff = cutoff; 
+  myests$CImethod = CImethod; 
+  myests$SEmethod = SEmethod;
+  myests$predict.time = predict.time; 
+  myests$alpha = alpha; 
+  
+  ## return the results in a nice fashion
+  class(myests) <-  "SurvRM"
+  myests
+}

@@ -1,0 +1,245 @@
+
+#function to estimate the SE using monte carlo methods
+logit = function(x) log(x/(1-x))
+expit = function(x) exp(x)/(1+exp(x))
+
+
+
+
+
+
+
+
+EstRTall<-function(data)
+{
+  #browser()
+  ck      = data[,1]   ## aka linearY
+  nc      = length(ck) 
+  CondSck = data[,2]   ## aka Sy
+  Fck     = data[,3]      
+		
+  dFck    = Fck - c(0,Fck[-nc])
+  St0.Fck = cumsum(CondSck*dFck)## St0.Fck = P(T> t0,Y<=ck)
+  Ft0.Fck = Fck-St0.Fck         ## Ft0.Fck = P(T<=t0,Y<=ck)
+  St0     = max(St0.Fck)        ## St0     = P(T> t0      )
+  Ft0     = 1-St0               ## Ft0     = P(T<=t0      )
+  FPR.c   = (St0-St0.Fck)/St0     ## P(Y> ck|T> t0)
+  TPR.c   = (Ft0-Ft0.Fck)/Ft0     ## P(Y> ck|T<=t0)
+  NPV.c   = St0.Fck/Fck           ## P(T> t0|Y<=ck)
+  PPV.c   = (Ft0-Ft0.Fck)/(1-Fck) ## P(T<=t0|Y> ck)
+
+  RT.out  = data.frame("cutoff" = ck,"RiskT" = 1-CondSck,"v"= Fck, "FPR" = FPR.c,"TPR" = TPR.c, "PPV" = PPV.c,"NPV" = NPV.c)
+  TG    = sum(abs(1-CondSck-Ft0)*(-Fck+c(Fck[-1],1)))
+  AUC   = sum(TPR.c*(FPR.c-c(FPR.c[-1],0)))
+  RiskT = 1-CondSck
+			
+  mmm  = length(RiskT)
+  ITPR = sum(TPR.c*(RiskT-c(0,RiskT[-mmm])))
+  IFPR = sum(FPR.c*(RiskT-c(0,RiskT[-mmm])))
+  IDI  = ITPR - IFPR
+
+  list(RT.out = RT.out, TG = TG, rho = Ft0, AUC = AUC, IDI = IDI, ITPR = ITPR , IFPR = IFPR)
+}
+
+EstRTvp<-function(RT.out, uu0, typex, typey) {
+
+  ind0.x = match(typex,c("cutoff","RiskT","v","FPR","TPR","PPV","NPV"))
+  ind0.y = match(typey,c("cutoff","RiskT","v","FPR","TPR","PPV","NPV"))
+
+  uuk = RT.out[,ind0.x]
+
+  tmpind <- which.min(abs(uuk - uu0))[1]
+
+
+  RT.out[tmpind, ind0.y]
+}
+
+
+sum.I<-function(yy,FUN,Yi,Vi=NULL){
+
+	if (FUN=="<"|FUN==">=") { yy <- -yy; Yi <- -Yi}
+
+	pos <- rank(c(yy,Yi),ties.method='f')[1:length(yy)]-rank(yy,ties.method='f')
+
+	if (substring(FUN,2,2)=="=") pos <- length(Yi)-pos
+
+	if (!is.null(Vi)) {
+
+      	if(substring(FUN,2,2)=="=") tmpind <- order(-Yi) else  tmpind <- order(Yi)
+
+		Vi <- apply(as.matrix(Vi)[tmpind,,drop=F],2,cumsum)
+          
+		return(rbind(0,Vi)[pos+1,])
+
+	} else return(pos)
+}
+
+
+
+VTM <- function(vc, dm)
+{
+    matrix(vc, ncol = length(vc), nrow = dm, byrow = T)
+}
+
+
+
+
+###########################################################################
+#  Estimates the base expansion from which the variance 
+#     estimates will be made; This is for Sty, St, and Fc. 
+#    
+#    N is the cohort size
+#    data is the dataset, and must have columns:
+#        "Y", "status", "times", "linearY" and "Sy" from Est.Sy.SEMIPW
+#    sometimes with 'zi' the matching variable and 'vi' used
+#      SHOULD ALSO HAVE
+#        "weights" if relevant...filled in with 1's below 
+#    predict.time is a scalar time used to divide cases from controls
+
+#      
+Est.Wexp<-function(data,N,RT.out,predict.time,uu0Vec,typexVec,typeyVec) {
+
+  if(missing(data))      { stop("Est.Wexp0: data not specified") }  
+
+  if( !("status" %in% names(data)) )  { stop(sprintf(errFormat,"status")) }
+  if( !("times" %in% names(data)) )  { stop(sprintf(errFormat,"times")) }
+ 
+  numCuts = nrow(data)
+  nr = numCuts
+  if(!"weights" %in% names(data)) {
+    data$weights=1
+  }
+
+  # First, fit the survival model    
+    data = data[order(data$linearY),]   ## it is sorted it before this function; 
+    #data = data[order(data$Sy),] 
+    Y  <- as.matrix(data[,!is.element(names(data), c("times", "zi", "status", "weights", "vi","Sy","linearY"))])
+    
+    np = dim(Y)[2]
+    fit  = coxph(Surv(data$times,data$status)~Y, 
+                 method="breslow", weight=data$weights)   
+    
+    # Doing riskmat, haz0 and time by hand since coxph.detail appears 
+    #  to be a newer R feature & some users may have not updated their R.
+    #    Note: this hazard is frequently normalized,
+    #    by multiplying by exp(mean(data$Y)*fit$coef), but that is 
+    #    not necessary here, as our haz0 below doesn't want it.
+    rrk      =  exp(data$linearY)
+    dataD    =  subset(data[order(data$times),],status==1)
+    riskmat  =  t(sapply(data$times,function(x) x >= dataD$times))
+
+    s0   = t(riskmat) %*% (rrk*data$weights) ## length of nt
+    s1   = t(riskmat) %*% t(VTM(rrk*data$weights,np)*t(Y))  ## nt *np 
+    haz0      = dataD$weights / colSums(riskmat*rrk*data$weights)
+    cumhaz0   = cumsum(haz0)
+    cumhaz.t0 = sum.I(predict.time, ">=", dataD$times, haz0)
+   ## CondSyk   = exp(-cumhaz.t0*rrk) ## check it is the same as Sy 
+    tmpind    = (data$times<=predict.time)&(data$status==1)
+    tmpind.t  = sum.I(data$times[tmpind], ">=", dataD$times)
+
+    resid.sco         = resid(fit, type="score")
+    Wexp.beta         = resid.sco %*% fit$var * N
+    Wexp.Lam1         = rep(0, numCuts)
+    Wexp.Lam1[tmpind] = N/s0[tmpind.t]
+    Wexp.Lam1 = Wexp.Lam1 - sum.I(pmin(predict.time,data$times), ">=", dataD$times, haz0/s0)*rrk*N
+    Wexp.Lam2 = Wexp.beta %*% sum.I(predict.time, ">=", dataD$times, haz0*s1/t(VTM(s0,np)))
+    Wexp.Lam  = Wexp.Lam1 - Wexp.Lam2
+
+    # end of most basic expansions... 
+    #    next calcs are derived expansions of performance measures
+   # Fyk  = sum.I(data$Sy, ">=", data$Sy, data$weights)/sum(data$weights)  ##Fyk = P(Sy <c)
+    Fyk  = sum.I(data$linearY, ">=", data$linearY, data$weights)/sum(data$weights)  # Fyk is the distribution of linear predictor under the cox model, same if use -Sy but not Sy
+    #Fyk   = rank(data$Y,ties="max")/numCuts
+    dFyk = Fyk - c(0,Fyk[-numCuts])
+
+    St0.Fyk   = cumsum(data$Sy*dFyk)  ## St0.Fyk = P(T> t0,Sy<=c)
+    St0       = max(St0.Fyk)          ## St0 = P(T>t0)
+    St0.Syk   = St0-St0.Fyk           ## St0.Syk = P(T>t0,Sy>c) 
+
+    Wexp.Cond.Stc = -VTM(data$Sy*rrk, numCuts) *
+                       (t(VTM(Wexp.Lam,numCuts))+cumhaz.t0*Wexp.beta%*%t(Y)) ## iid expansion of Sy at each c=sy;
+                       ## changed below to >= from < 
+    Wexp.Stc  = t(sum.I(data$linearY, "<", data$linearY, t(Wexp.Cond.Stc)*dFyk)) + 
+                data$Sy*(data$linearY > VTM(data$linearY,numCuts)) - 
+                VTM(St0.Syk, numCuts)     ## iid expansion of St0.Syk  
+                           
+    Wexp.St   = colSums(t(Wexp.Cond.Stc)*dFyk) + data$Sy - St0  ## iid expansion of St0, 
+
+    Wexp.Fc   = 1*(data$linearY <= VTM(data$linearY,numCuts)) - VTM(Fyk,numCuts)  ## iid expansion of Fyc = P(Sty<c) for c known;  
+ 
+   ## Assemble for classic performance measures: given linear predictor; 
+   Wexp.all = as.list(1:7); 
+   
+   names(Wexp.all)=c("RiskT","v","FPR","TPR","rho","NPV","PPV")
+
+   Wexp.all[[1]] = -Wexp.Cond.Stc; ## iid expansion of conditional risk: Fty = P(T<t|Y) for each person n*n
+   Wexp.all[[2]] = Wexp.Fc; ## iid expansion of v=Fyc = P(linearY<c)
+   Wexp.all[[3]] = ( - Wexp.St * VTM(RT.out[,4], numCuts) + Wexp.Stc)/St0  ## iid expansion of P(Sy>c|T>t)
+   Wexp.all[[4]] = (Wexp.St* VTM(RT.out[,5], numCuts) -Wexp.Fc - Wexp.Stc)/(1-St0)  ## iid expansion of P(Sy>c|T<t)
+   Wexp.all[[5]] =  -Wexp.St;  ## iid expansion of P(T>t)
+   Wexp.all[[6]] = (Wexp.St-Wexp.Stc-VTM(RT.out[,6], nr)*Wexp.Fc)/VTM(Fyk,nr)              	
+   Wexp.all[[7]]= (VTM(RT.out[,7]-1, nr)*Wexp.Fc-Wexp.Stc)/VTM(1-Fyk,nr)
+   ## now get iid expansion for other accuracy summaries
+   ## global summaries 
+   ## AUC = sum(RT.out$TPR*(RT.out$FPR-c(RT.out$FPR[-1],0)))
+   mmm = length(RT.out$TPR)
+   ITPR = sum(RT.out$TPR*(RT.out$RiskT-c(0,RT.out$RiskT[-mmm])))
+   IFPR = sum(RT.out$FPR*(RT.out$RiskT-c(0,RT.out$RiskT[-mmm])))
+   IDI = ITPR - IFPR
+      
+   Wexp.ITPR = Wexp.all[[4]]%*%(RT.out$RiskT-c(0,RT.out$RiskT[-mmm]))+
+  	              (Wexp.all[[1]]-cbind(0,Wexp.all[[1]][,-mmm]))%*%RT.out$TPR
+   Wexp.IFPR = Wexp.all[[3]]%*%(RT.out$RiskT-c(0,RT.out$RiskT[-mmm]))+
+  	              (Wexp.all[[1]]-cbind(0,Wexp.all[[1]][,-mmm]))%*%RT.out$FPR
+   Wexp.IDI= Wexp.ITPR - Wexp.IFPR 	
+   Wexp.AUC = Wexp.all[[4]]%*%(RT.out$FPR-c(RT.out$FPR[-1],0))+(Wexp.all[[3]]-cbind(Wexp.all[[3]][,-1],0))%*%RT.out$TPR
+
+   if(!is.null(uu0Vec)){
+      nvp = length(uu0Vec)
+      Wexp.vp  = matrix(0,nr,nvp)
+
+      for (pp in 1:nvp) {	
+         uu0 = uu0Vec[pp]   
+   
+   	    uuk = sort(RT.out[,1]); 
+   	    tmpind = sum.I(uu0,">=",uuk)
+   	    ind0.y = match(typeyVec[pp],c("RiskT","v","FPR","TPR","rho","NPV","PPV"))
+
+   	    Wexp.vp[,pp] = Wexp.all[[ind0.y]][,tmpind]
+      }
+      
+   }else{
+      Wexp.vp = NULL
+   }
+   	          	     
+   list(Wexp.beta = Wexp.beta, Wexp.AUC = Wexp.AUC, Wexp.vp=Wexp.vp)   
+ }
+
+
+
+
+
+Est.Var.CCH.trueweights = function(N,Wexp,data,stratum) {
+  # browser()
+  #Wexp = as.matrix(Wexp)
+  #browser()
+  cohort.variance = colSums(data$weights*(Wexp/N)^2)
+  robust.variance = colSums((data$weights*Wexp/N)^2)
+  ## strata by cases and conrols 
+  stra = sort(unique(stratum))
+  nstra=length(stra);
+  np = dim(Wexp)[2]
+  strvar = rep(0,np);
+  for (i in 1:nstra) {
+    straWt = data$weights[stratum==stra[i]]	
+    straWexp = as.matrix(Wexp[stratum==stra[i],])
+    ns = length(straWt)	
+    tempstratavar = (ns-1)*(straWt[1]-1)*straWt[1]*apply(straWexp/N,2,var)
+    strvar = strvar + tempstratavar
+  }
+  
+  list(cohort.variance=cohort.variance,robust.variance=robust.variance,variance = cohort.variance+strvar)
+}
+
+
+

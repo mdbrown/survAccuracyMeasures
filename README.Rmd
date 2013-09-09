@@ -1,0 +1,67 @@
+survAccuracyMeasures
+=============================================
+
+This R package estimates accuracy measures for risk prediction markers from survival data. It consists of the function `survEstMeasures` which estimates the $AUC$, $TPR(c)$, $FPR(c)$, $PPV(c)$, and $NPV(c)$ for for a specific timepoint and marker cutoff value c. Standard errors, and confidence intervals are also computed. Either analytic or bootstrap standard errors can be computed.
+
+For more information, see references below. 
+
+
+## Tutorial
+
+
+```{r}
+library(survAccuracyMeasures)
+
+#simulated data for illustration
+data(SimData)
+head(SimData)
+```
+
+
+Estimate all measures, using asymptotic normality to estimate standard errors. 
+
+```{r}
+#Estimate all the measures at future time 2, with a marker cutpoint at 0. 
+
+survEstMeasures(time =SimData$survTime, 
+                event = SimData$status, 
+                marker = SimData$Y, predict.time = 2, 
+                 cutpoint = 0, SEmethod = "normal")
+```
+
+Only estimate the $AUC$ and $TPR(0)$. This time use bootstrapping to obtain the standard errors. 
+
+```{r}
+tmp <- survEstMeasures(time =SimData$survTime, event = SimData$status, marker = SimData$Y, predict.time = 2, measures = c("AUC", "TPR"), SEmethod = 'bootstrap', bootstraps = 50, cutpoint = 0)
+tmp
+```
+
+```{r}
+#access the estimates 
+tmp$estimates
+
+#and the confidence bounds
+tmp$CIbounds
+```
+
+For more information see `?survEstMeasures`. 
+
+
+### References
+Pepe MS, Zheng Y, Jin Y. Evaluating the ROC performance of markers for future events. *Lifetime Data Analysis.* 2008, 14: 86-113.
+
+Zheng Y, Cai T, Pepe MS, Levy, W. Time-dependent predictive values of prognostic biomarkers with failure time outcome. *JASA* 2008, 103: 362-368.
+
+
+
+
+
+
+
+
+
+
+
+
+
+

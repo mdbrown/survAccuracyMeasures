@@ -1,0 +1,16 @@
+Package: survAccuracyMeasures
+Type: Package
+Title: Estimate accuracy measures for risk prediction markers from survival data
+Version: 1.0
+Date: 2013-06-11
+Author: Yingye Zheng, Tianxi Cai, and Marshall Brown
+Maintainer: Marshall Brown <mdbrown@fhcrc.org>
+Description: This package provides a function to estimate the AUC, TPR(c),
+    FPR(c), PPV(c), and NPV(c) for for a specific timepoint and marker cutoff
+    value c. Standard errors and confidence intervals are also computed. Either
+    analytic or bootstrap standard errors can be computed.
+License: GPL-2
+Depends:
+    survival,
+    splines
+URL: https://github.com/mdbrown/survRpackages

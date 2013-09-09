@@ -1,0 +1,79 @@
+\name{survEstAM}
+\alias{survEstAM}
+\title{Estimate accuracy measures for a risk prediction marker from time to event data}
+\usage{
+  survEstAM(time, event, marker, predict.time,
+    measures = c("all"), cutoff = median(marker),
+    CImethod = "logit.transformed", SEmethod = "normal",
+    bootstraps = 1000, alpha = 0.05, yes.cutoff = FALSE)
+}
+\arguments{
+  \item{time}{numeric vector, time to event variable}
+
+  \item{event}{numeric vector, indicator for the status of
+  event of interest. event = 0 for censored observations,
+  and event = 1 for event of interest.}
+
+  \item{marker}{numeric vector, marker variable of
+  interest}
+
+  \item{predict.time}{numeric value of the timepoint of
+  interest for which to estimate the risk measures}
+
+  \item{measures}{character vector that can contain the
+  following 'AUC', 'TPR', 'FPR', 'PPV', 'NPV' or 'all'
+  (default).}
+
+  \item{cutoff}{numeric value indicating the value of the
+  cutoff 'c' at which to estimate 'FPR', 'TPR', 'NPV' or
+  'PPV'. default is \code{median(marker)}.}
+
+  \item{CImethod}{character string of either
+  'logit.transformed' (default) or 'standard' indicating
+  whether normal approximated confidence intervals should
+  be calculated using logistic transformed values or the
+  standard method.}
+
+  \item{SEmethod}{character string of either
+  'normal'(default) or 'boostrap' indicating whether
+  standard errors should be calculated analytically or via
+  the bootstrap. The method to calculate the SE
+  analytically is described in the paper referenced below.}
+
+  \item{bootstraps}{if SEmethod = 'bootstrap', number of
+  bootstrap replicates to use to estimate the SE.}
+
+  \item{alpha}{alpha value for confidence intervals.
+  (1-alpha)*100% confidence intervals are provided. default
+  is alpha = 0.05.}
+}
+\value{
+  a list with components \item{estimates}{point estimates
+  for risk measures} \item{se}{standard errors for
+  estimates} \item{CIbounds}{bounds for (1-alpha)*100%
+  confidence interval} \item{cutoff, CImethod, SEmethod,
+  predict.time, alpha}{ function inputs}
+}
+\description{
+  This function estimates the AUC, TPR(c), FPR(c), PPV(c),
+  and NPV(c) for for a specific timepoint and marker cutoff
+  value c. Standard errors, and confidence intervals are
+  also computed. Either analytic or bootstrap standard
+  errors can be computed.
+}
+\note{
+  During estimation, we fit a Cox proportional hazards
+  model using the \code{coxph} function from the
+  \code{Survival} package: \code{coxph(Surv(time,
+  event)~Y)}. This function outputs information regarding
+  the coefficient in this model called 'coef'.
+}
+\examples{
+data(SimData)
+
+tmp <- survEstAM(time =SimData$survTime, event = SimData$status, marker = SimData$Y, predict.time = 2, cutoff = 0)
+tmp
+
+survEstAM(time =SimData$survTime, event = SimData$status, marker = SimData$Y, predict.time = 2, measures = c("AUC", "TPR"), SEmethod = 'bootstrap', bootstraps = 50, cutoff = 0)
+}
+
