@@ -11,6 +11,10 @@ For more information, see references below.
 
 
 ```r
+#install the package from github
+if (!require("devtools")) install.packages("devtools")
+devtools::install_github("survAccuracyMeasures", "mdbrown")
+
 library(survAccuracyMeasures)
 ```
 
