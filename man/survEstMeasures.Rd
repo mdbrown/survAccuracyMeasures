@@ -2,7 +2,7 @@
 \alias{survEstMeasures}
 \title{Estimate accuracy measures for a risk prediction marker from survival data}
 \usage{
-  survEstMeasures(time, event, marker, predict.time,
+  survEstMeasures(time, event, marker, weights = NULL, predict.time,
     measures = c("all"), cutpoint = median(marker),
     CImethod = "logit.transformed", SEmethod = "normal",
     bootstraps = 1000, alpha = 0.05)
@@ -16,7 +16,9 @@
 
   \item{marker}{numeric vector, marker variable of
   interest}
-
+  
+  \item{weights}{numeric vector of sample weights from a case-cohort sample design. Should be equal to 1/Pr(sampled from cohort). }
+  
   \item{predict.time}{numeric value of the timepoint of
   interest for which to estimate the risk measures}
 
@@ -70,6 +72,42 @@ tmp <- survEstMeasures(time =SimData$survTime, event = SimData$status, marker = 
 tmp
 
 survEstMeasures(time =SimData$survTime, event = SimData$status, marker = SimData$Y, predict.time = 2, measures = c("AUC", "TPR"), SEmethod = 'bootstrap', bootstraps = 50, cutpoint = 0)
+
+#generate a sub-cohort from SimData
+set.seed(12321)
+#create a sample index. 1 if sampled, 0 if not
+N <- nrow(SimData)
+sampleInd <- rep(0, N)
+
+# sample all with observed failure time. (200 individuals)
+sampleInd[SimData$status==1] <- 1
+
+#sample 150 more observations from the entire data set without replacement
+sampleInd[sample(1:N, 150)] <- 1
+
+table(sampleInd) #total number of subcohort is 293 
+
+## now calculate sample weights
+#first calculate the Pr(Sampled from cohort) for each observation
+sampleProb <- numeric(500)
+#all non-censored observations were sampled, so their sample probability is 1
+sampleProb[SimData$status==1] <- 1 
+sampleProb[SimData$status==0] <- 150/N
+
+SimData$weights <- 1/sampleProb
+
+subCohortData <- SimData[sampleInd==1,]
+
+#estimate accuracy measures using only the subcohort data
+survEstMeasures(time =subCohortData$survTime, 
+                event = subCohortData$status, 
+                marker = subCohortData$Y,
+                weights = subCohortData$weights, 
+                predict.time = 2, 
+                 cutpoint = 0, SEmethod = "normal")
+
+
+
 }
 \references{
   Pepe MS, Zheng Y, Jin Y. Evaluating the ROC performance

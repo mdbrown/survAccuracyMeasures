@@ -41,7 +41,7 @@
 #' 
 #' survEstMeasures(time =SimData$survTime, event = SimData$status, marker = SimData$Y, predict.time = 2, measures = c("AUC", "TPR"), SEmethod = 'bootstrap', bootstraps = 50, cutpoint = 0)
 #' 
-survEstMeasures <- function(time, event, marker, predict.time, measures = c('all'), 
+survEstMeasures <- function(time, event, marker, weights = NULL, predict.time, measures = c('all'), 
                    cutpoint = median(marker), CImethod = "logit.transformed", 
                    SEmethod ="normal", bootstraps = 1000, alpha=0.05){
   cutoff <- cutpoint
@@ -62,6 +62,16 @@ survEstMeasures <- function(time, event, marker, predict.time, measures = c('all
   if(any(c("TPR", "FPR", "PPV", "NPV") %in% measures) & is.na(cutoff)) stop("'cutoff' must be set in order to calculate 'FPR', 'TPR', 'PPV, 'NPV'")
   N <- dim(time)[1]; if(is.null(N)) N = length(time)
   
+  if(is.null(weights)){ 
+    weights = rep(1, N)
+    subcohort = FALSE
+  }else{
+    if(any(weights <=0)) stop("weights must be > 0.")
+    if(length(weights)!=N) stop("length of weights must be the same as the length of time, event and marker")
+    if(is.element(substr(SEmethod, 1,4), c("boot"))) stop("bootstrap SE's cannot be calculated when sample weights are provided, please set SEmethod='normal'")
+    subcohort = TRUE
+  }
+  
   #end of checks
   
   
@@ -70,11 +80,11 @@ survEstMeasures <- function(time, event, marker, predict.time, measures = c('all
   #build data frame for getEstimates
   mydata <- as.data.frame(cbind(time, event, marker))
   names(mydata) = c("xi", "di", "Y")
-
+  mydata$wi = weights
   
   if(SEmethod == "normal"){
 
-    myests <- getEstimates( data = mydata, cutpoint = cutoff,  measures = measures, predict.time = predict.time, CalVar = TRUE, cutoff.type = cutoff.type, cutoffN)
+    myests <- getEstimates( data = mydata, cutpoint = cutoff,  measures = measures, predict.time = predict.time, CalVar = TRUE, cutoff.type = cutoff.type, cutoffN, subcohort)
    
   }else if(substr(SEmethod, 1,4)=="boot"){
     bootstraps = round(bootstraps)

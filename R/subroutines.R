@@ -112,20 +112,18 @@ Est.Wexp<-function(data,N,RT.out,predict.time,uu0Vec,typexVec,typeyVec, resid.sc
  
   numCuts = nrow(data)
   nr = numCuts
-  if(!"weights" %in% names(data)) {
-    data$weights=1
-  }
+
 
   # First, fit the survival model    
     data = data[order(data$linearY),]   ## it is sorted it before this function; 
     #data = data[order(data$Sy),] 
-    Y  <- as.matrix(data[,!is.element(names(data), c("times", "zi", "status", "weights", "vi","Sy","linearY"))])
+    Y  <- as.matrix(data[,!is.element(names(data), c("times", "zi", "status", "wi", "vi","Sy","linearY"))])
     
     np = dim(Y)[2]
   
     fit  = coxph(Surv(data$times,data$status)~Y, 
-                method="breslow", weights=data$weights)   
-    
+                method="breslow", weights=data$wi)   
+
     # Doing riskmat, haz0 and time by hand since coxph.detail appears 
     #  to be a newer R feature & some users may have not updated their R.
     #    Note: this hazard is frequently normalized,
@@ -136,9 +134,9 @@ Est.Wexp<-function(data,N,RT.out,predict.time,uu0Vec,typexVec,typeyVec, resid.sc
     dataD    =  subset(data[order(data$times),],status==1)
     riskmat  =  t(sapply(data$times,function(x) x >= dataD$times))
 
-    s0   = t(riskmat) %*% (rrk*data$weights) ## length of nt
-    s1   = t(riskmat) %*% t(VTM(rrk*data$weights,np)*t(Y))  ## nt *np 
-    haz0      = dataD$weights / colSums(riskmat*rrk*data$weights)
+    s0   = t(riskmat) %*% (rrk*data$wi) ## length of nt
+    s1   = t(riskmat) %*% t(VTM(rrk*data$wi,np)*t(Y))  ## nt *np 
+    haz0      = dataD$wi / colSums(riskmat*rrk*data$wi)
     cumhaz0   = cumsum(haz0)
     cumhaz.t0 = sum.I(predict.time, ">=", dataD$times, haz0)
    ## CondSyk   = exp(-cumhaz.t0*rrk) ## check it is the same as Sy 
@@ -155,8 +153,8 @@ Est.Wexp<-function(data,N,RT.out,predict.time,uu0Vec,typexVec,typeyVec, resid.sc
 
     # end of most basic expansions... 
     #    next calcs are derived expansions of performance measures
-   # Fyk  = sum.I(data$Sy, ">=", data$Sy, data$weights)/sum(data$weights)  ##Fyk = P(Sy <c)
-    Fyk  = sum.I(data$linearY, ">=", data$linearY, data$weights)/sum(data$weights)  # Fyk is the distribution of linear predictor under the cox model, same if use -Sy but not Sy
+   # Fyk  = sum.I(data$Sy, ">=", data$Sy, data$wi)/sum(data$wi)  ##Fyk = P(Sy <c)
+    Fyk  = sum.I(data$linearY, ">=", data$linearY, data$wi)/sum(data$wi)  # Fyk is the distribution of linear predictor under the cox model, same if use -Sy but not Sy
     #Fyk   = rank(data$Y,ties="max")/numCuts
     dFyk = Fyk - c(0,Fyk[-numCuts])
 
@@ -223,28 +221,30 @@ Est.Wexp<-function(data,N,RT.out,predict.time,uu0Vec,typexVec,typeyVec, resid.sc
 
 
 
-Est.Var.CCH.trueweights = function(N,Wexp,data,stratum) {
-  # browser()
-  #Wexp = as.matrix(Wexp)
-  #browser()
-  cohort.variance = colSums(data$weights*(Wexp/N)^2)
-  robust.variance = colSums((data$weights*Wexp/N)^2)
-#  cohort.variance <-  lapply(Wexp,a<- function(x){ colSums(data$weights*(as.matrix(x)/N)^2)})
- # robust.variance <-  lapply(Wexp, function(x){ colSum((data$weights*as.matrix(x)/N)^2)})
+Est.Var.CCH.trueweights = function(N,Wexp,data,stratum, subcohort) {
+
+  cohort.variance = colSums(data$wi*(Wexp/N)^2)
+ # robust.variance = colSums((data$weights*Wexp/N)^2)
+
+  if(subcohort){
+
   ## strata by cases and conrols 
-  #stra = sort(unique(stratum))
-  #nstra=length(stra);
-  #np = dim(Wexp)[2]
-  #strvar = rep(0,np);
-  #for (i in 1:nstra) {
-  #  straWt = data$weights[stratum==stra[i]]	
-  #  straWexp = as.matrix(Wexp[stratum==stra[i],])
-  #  ns = length(straWt)	
-  #  tempstratavar = (ns-1)*(straWt[1]-1)*straWt[1]*apply(straWexp/N,2,var)
-  #  strvar = strvar + tempstratavar
-  #}
+  stra = sort(unique(stratum))
+  nstra=length(stra);
+  np = dim(Wexp)[2]
+  strvar = rep(0,np);
+  for (i in 1:nstra) {
+    straWt = data$wi[stratum==stra[i]]	
+    straWexp = as.matrix(Wexp[stratum==stra[i],])
+    ns = length(straWt)	
+    tempstratavar = (ns-1)*(straWt[1]-1)*straWt[1]*apply(straWexp/N,2,var)
+    strvar = strvar + tempstratavar
+  }
+     return(cohort.variance+strvar)
+  }else{
+    return(cohort.variance)
+  }
   
-  list(cohort.variance=cohort.variance,robust.variance=robust.variance)#,variance = cohort.variance+strvar)
 }
 
 

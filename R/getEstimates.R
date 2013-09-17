@@ -12,13 +12,13 @@ getEstimates <- function(data,
                        cutpoint,  
                        measures,
                        predict.time,
-                       CalVar, cutoff.type = "none", cutoffN = 100)
+                       CalVar, cutoff.type = "none", cutoffN = 100, subcohort=FALSE)
 {  
   
 #  browser()
   
   N = nrow(data)
-  data$vi = 1; data$wi = 1
+  data$vi = 1; #data$wi = 1
   cutoff <- cutpoint
   
   #junk = GetRTdata(data, predict.time)  ## data.RT and data are sorted by Y 
@@ -103,12 +103,12 @@ getEstimates <- function(data,
   if (CalVar)  {
 
     subdata = cbind(data[ooo,],data.RT[,c(2)], linearY[ooo])
-    names(subdata)=c("times","status","y","vi","weights","Sy","linearY")
+    names(subdata)=c("times","status","y","wi","vi","Sy","linearY")
 
     jjunk = Est.Wexp(subdata,N,RT.out,predict.time,vp,typex,typey, resid(fit, "score"), fit$var)
-    Wexp = cbind(jjunk$Wexp.beta,jjunk$Wexp.AUC,jjunk$Wexp.vp)
+    Wexp = data.frame(cbind(jjunk$Wexp.beta,jjunk$Wexp.AUC,jjunk$Wexp.vp))
     
-    se = sqrt(Est.Var.CCH.trueweights(N,Wexp,subdata,subdata$status)[[1]])  
+    se = sqrt(Est.Var.CCH.trueweights(N,Wexp,subdata,subdata$status, subcohort))  
     list(estimates = unlist(est),se =se, fit = fit) 
       
 		
