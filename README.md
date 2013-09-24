@@ -1,7 +1,7 @@
 survAccuracyMeasures
 =============================================
 
-This R package estimates accuracy measures for risk prediction markers from survival data. It consists of the function `survAM.estimate` which estimates the $AUC$, $TPR(c)$, $FPR(c)$, $PPV(c)$, and $NPV(c)$ for for a specific timepoint and marker cutoff value c. Standard errors, and confidence intervals are also computed. Either analytic or bootstrap standard errors can be computed. Estimation of accuracy measures for the case-cohort design is also provided.
+This R package estimates accuracy measures for risk prediction markers from survival data. It consists of the function `survAM.estimate` which estimates the $AUC$, $TPR(c)$, $FPR(c)$, $PPV(c)$, and $NPV(c)$ for for a specific timepoint and marker cutoff value c. Standard errors, and confidence intervals are also computed. Either analytic or bootstrap standard errors can be computed. 
 
 For more information, see references below. 
 
