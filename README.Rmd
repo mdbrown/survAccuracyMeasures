@@ -1,7 +1,7 @@
 survAccuracyMeasures
 =============================================
 
-This R package estimates accuracy measures for risk prediction markers from survival data. It consists of the function `survEstMeasures` which estimates the $AUC$, $TPR(c)$, $FPR(c)$, $PPV(c)$, and $NPV(c)$ for for a specific timepoint and marker cutoff value c. Standard errors, and confidence intervals are also computed. Either analytic or bootstrap standard errors can be computed. Estimation of accuracy measures for the case-cohort design is also provided.
+This R package estimates accuracy measures for risk prediction markers from survival data. It consists of the function `survAM.estimate` which estimates the $AUC$, $TPR(c)$, $FPR(c)$, $PPV(c)$, and $NPV(c)$ for for a specific timepoint and marker cutoff value c. Standard errors, and confidence intervals are also computed. Either analytic or bootstrap standard errors can be computed. Estimation of accuracy measures for the case-cohort design is also provided.
 
 For more information, see references below. 
 
@@ -23,7 +23,7 @@ Estimate all measures, using asymptotic normality to estimate standard errors.
 ```{r}
 #Estimate all the measures at future time 2, with a marker cutpoint at 0. 
 
-survEstMeasures(time =SimData$survTime, 
+survAM.estimate(time =SimData$survTime, 
                 event = SimData$status, 
                 marker = SimData$Y, predict.time = 2, 
                  cutpoint = 0, SEmethod = "normal")
@@ -32,7 +32,7 @@ survEstMeasures(time =SimData$survTime,
 Only estimate the $AUC$ and $TPR(0)$. This time use bootstrapping to obtain the standard errors. 
 
 ```{r}
-tmp <- survEstMeasures(time =SimData$survTime, event = SimData$status, marker = SimData$Y, predict.time = 2, measures = c("AUC", "TPR"), SEmethod = 'bootstrap', bootstraps = 50, cutpoint = 0)
+tmp <- survAM.estimate(time =SimData$survTime, event = SimData$status, marker = SimData$Y, predict.time = 2, measures = c("AUC", "TPR"), SEmethod = 'bootstrap', bootstraps = 50, cutpoint = 0)
 tmp
 ```
 
@@ -44,47 +44,7 @@ tmp$estimates
 tmp$CIbounds
 ```
 
-For more information see `?survEstMeasures`. 
-
-### Case-Cohort Design
-
-Estimation using a case-cohort subcohort design is also permitted. Sample weights must first be calculated. 
-
-```{r}
-#generate a sub-cohort from SimData
-set.seed(12321)
-#create a sample index. 1 if sampled, 0 if not
-N <- nrow(SimData)
-sampleInd <- rep(0, N)
-
-# sample all with observed failure time. (200 individuals)
-sampleInd[SimData$status==1] <- 1
-
-#sample 150 more observations from the entire data set without replacement
-sampleInd[sample(1:N, 150)] <- 1
-
-table(sampleInd) #total number of subcohort is 293 
-
-## now calculate sample weights
-#first calculate the Pr(Sampled from cohort) for each observation
-sampleProb <- numeric(500)
-#all non-censored observations were sampled, so their sample probability is 1
-sampleProb[SimData$status==1] <- 1 
-sampleProb[SimData$status==0] <- 150/N
-
-SimData$weights <- 1/sampleProb
-
-subCohortData <- SimData[sampleInd==1,]
-
-#estimate accuracy measures using only the subcohort data
-survEstMeasures(time =subCohortData$survTime, 
-                event = subCohortData$status, 
-                marker = subCohortData$Y,
-                weights = subCohortData$weights, 
-                predict.time = 2, 
-                 cutpoint = 0, SEmethod = "normal")
-
-```
+For more information see `?survAM.estimate`. 
 
 
 

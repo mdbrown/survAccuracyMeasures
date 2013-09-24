@@ -184,7 +184,7 @@ hljs.initHighlightingOnLoad();
 <body>
 <h1>survAccuracyMeasures</h1>
 
-<p>This R package estimates accuracy measures for risk prediction markers from survival data. It consists of the function <code>survEstMeasures</code> which estimates the \( AUC \), \( TPR(c) \), \( FPR(c) \), \( PPV(c) \), and \( NPV(c) \) for for a specific timepoint and marker cutoff value c. Standard errors, and confidence intervals are also computed. Either analytic or bootstrap standard errors can be computed.</p>
+<p>This R package estimates accuracy measures for risk prediction markers from survival data. It consists of the function <code>survAM.estimate</code> which estimates the \( AUC \), \( TPR(c) \), \( FPR(c) \), \( PPV(c) \), and \( NPV(c) \) for for a specific timepoint and marker cutoff value c. Standard errors, and confidence intervals are also computed. Either analytic or bootstrap standard errors can be computed. Estimation of accuracy measures for the case-cohort design is also provided.</p>
 
 <p>For more information, see references below. </p>
 
@@ -193,10 +193,7 @@ hljs.initHighlightingOnLoad();
 <pre><code class="r">library(survAccuracyMeasures)
 </code></pre>
 
-<pre><code>## Loading required package: survival
-</code></pre>
-
-<pre><code>## Loading required package: splines
+<pre><code>## Loading required package: survival Loading required package: splines
 </code></pre>
 
 <pre><code class="r">
@@ -218,7 +215,7 @@ head(SimData)
 
 <pre><code class="r"># Estimate all the measures at future time 2, with a marker cutpoint at 0.
 
-survEstMeasures(time = SimData$survTime, event = SimData$status, marker = SimData$Y, 
+survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimData$Y, 
     predict.time = 2, cutpoint = 0, SEmethod = &quot;normal&quot;)
 </code></pre>
 
@@ -236,7 +233,7 @@ survEstMeasures(time = SimData$survTime, event = SimData$status, marker = SimDat
 
 <p>Only estimate the \( AUC \) and \( TPR(0) \). This time use bootstrapping to obtain the standard errors. </p>
 
-<pre><code class="r">tmp &lt;- survEstMeasures(time = SimData$survTime, event = SimData$status, marker = SimData$Y, 
+<pre><code class="r">tmp &lt;- survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimData$Y, 
     predict.time = 2, measures = c(&quot;AUC&quot;, &quot;TPR&quot;), SEmethod = &quot;bootstrap&quot;, bootstraps = 50, 
     cutpoint = 0)
 tmp
@@ -244,9 +241,9 @@ tmp
 
 <pre><code>## 
 ##         estimate     se      lower 0.95  upper 0.95
-## coef       1.010     0.084         0.845       1.175 
-## AUC        0.775     0.017         0.739       0.807 
-## TPR(c)     0.768     0.025         0.715       0.814 
+## coef       1.010     0.074         0.865       1.154 
+## AUC        0.775     0.018         0.737       0.808 
+## TPR(c)     0.768     0.028         0.708       0.818 
 ## 
 ##  marker cutpoint: c = 0
 </code></pre>
@@ -265,11 +262,11 @@ tmp$CIbounds
 </code></pre>
 
 <pre><code>##         coef    AUC    TPR
-## upper 1.1751 0.8068 0.8137
-## lower 0.8446 0.7391 0.7148
+## upper 1.1543 0.8084 0.8183
+## lower 0.8654 0.7371 0.7085
 </code></pre>
 
-<p>For more information see <code>?survEstMeasures</code>. </p>
+<p>For more information see <code>?survAM.estimate</code>. </p>
 
 <h3>Case-Cohort Design</h3>
 
@@ -284,8 +281,7 @@ sampleInd &lt;- rep(0, N)
 # sample all with observed failure time. (200 individuals)
 sampleInd[SimData$status == 1] &lt;- 1
 
-# sample 150 more observations from the entire data set without
-# replacement
+# sample 150 more observations from the entire data set without replacement
 sampleInd[sample(1:N, 150)] &lt;- 1
 
 table(sampleInd)  #total number of subcohort is 293 
@@ -297,11 +293,11 @@ table(sampleInd)  #total number of subcohort is 293
 </code></pre>
 
 <pre><code class="r">
-## now calculate sample weights first calculate the Pr(Sampled from
-## cohort) for each observation
+## now calculate sample weights first calculate the Pr(Sampled from cohort)
+## for each observation
 sampleProb &lt;- numeric(500)
-# all non-censored observations were sampled, so their sample probability
-# is 1
+# all non-censored observations were sampled, so their sample probability is
+# 1
 sampleProb[SimData$status == 1] &lt;- 1
 sampleProb[SimData$status == 0] &lt;- 150/N
 
@@ -310,7 +306,7 @@ SimData$weights &lt;- 1/sampleProb
 subCohortData &lt;- SimData[sampleInd == 1, ]
 
 # estimate accuracy measures using only the subcohort data
-survEstMeasures(time = subCohortData$survTime, event = subCohortData$status, 
+survAM.estimate(time = subCohortData$survTime, event = subCohortData$status, 
     marker = subCohortData$Y, weights = subCohortData$weights, predict.time = 2, 
     cutpoint = 0, SEmethod = &quot;normal&quot;)
 </code></pre>

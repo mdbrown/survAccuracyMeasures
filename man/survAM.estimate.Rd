@@ -1,8 +1,8 @@
-\name{survEstMeasures}
-\alias{survEstMeasures}
+\name{survAM.estimate}
+\alias{survAM.estimate}
 \title{Estimate accuracy measures for a risk prediction marker from survival data}
 \usage{
-  survEstMeasures(time, event, marker, weights = NULL, predict.time,
+  survAM.estimate(time, event, marker, weights = NULL, predict.time,
     measures = c("all"), cutpoint = median(marker),
     CImethod = "logit.transformed", SEmethod = "normal",
     bootstraps = 1000, alpha = 0.05)

@@ -1,52 +1,9 @@
-#' Estimate accuracy measures for a risk prediction marker from survival data
-#' 
-#' This function estimates the AUC, TPR(c), FPR(c), PPV(c), and NPV(c) for 
-#' for a specific timepoint and marker cutoff value c. Standard errors, and 
-#' confidence intervals are also computed. Either analytic or bootstrap
-#'  standard errors can be computed.
-#'  
-#' @param time numeric vector, time to event variable
-#' @param event numeric vector, indicator for the status of event of interest. event = 0 for censored observations, and event = 1 for event of interest. 
-#' @param marker numeric vector, marker variable of interest
-#' @param predict.time numeric value of the timepoint of interest for which to estimate the risk measures 
-#' @param measures character vector that can contain the following 'AUC', 'TPR', 'FPR', 'PPV', 'NPV' or 'all' (default).  
-#' @param cutpoint numeric value indicating the value of the cutpoint 'c' at which to estimate 'FPR', 'TPR', 'NPV' or 'PPV'. default is \code{median(marker)}.
-#' @param CImethod character string of either 'logit.transformed' (default) or 'standard' indicating whether normal approximated confidence intervals should be calculated using logistic transformed values or the standard method. 
-#' @param SEmethod character string of either 'normal'(default) or 'boostrap' indicating whether standard errors should be calculated analytically or via the bootstrap. The method to calculate the SE analytically is described in the paper referenced below. 
-#' @param bootstraps if SEmethod = 'bootstrap', number of bootstrap replicates to use to estimate the SE.  
-#' @param alpha alpha value for confidence intervals. (1-alpha)*100% confidence intervals are provided. default is alpha = 0.05. 
-#' 
-#' @return a list with components 
-#' \item{estimates}{point estimates for risk measures} 
-#' \item{se}{standard errors for estimates}
-#' \item{CIbounds}{bounds for (1-alpha)*100% confidence interval}
-#' \item{model.fit}{object of type 'coxph' from fitting the model \code{coxph(Surv(time, event)~Y)}}
-#' \item{cutoff, CImethod, SEmethod, predict.time, alpha}{ function inputs}
-#' 
-#' @references 
-#' Pepe MS, Zheng Y, Jin Y. Evaluating the ROC performance of markers for future
-#' events. Lifetime Data Analysis. 2008, 14: 86-113.
-#' 
-#' Zheng Y, Cai T, Pepe MS, Levy, W. Time-dependent predictive values of prognostic
-#' biomarkers with failure time outcome. JASA 2008, 103: 362-368.
-#' 
-#' 
-#'
-#'@examples
-#'
-#' data(SimData)
-#' 
-#' tmp <- survEstMeasures(time =SimData$survTime, event = SimData$status, marker = SimData$Y, predict.time = 2, cutpoint = 0)
-#' tmp
-#' 
-#' survEstMeasures(time =SimData$survTime, event = SimData$status, marker = SimData$Y, predict.time = 2, measures = c("AUC", "TPR"), SEmethod = 'bootstrap', bootstraps = 50, cutpoint = 0)
-#' 
-survEstMeasures <- function(time, event, marker, weights = NULL, predict.time, measures = c('all'), 
+survAM.estimate <- function(time, event, marker, predict.time, measures = c('all'), 
                    cutpoint = median(marker), CImethod = "logit.transformed", 
                    SEmethod ="normal", bootstraps = 1000, alpha=0.05){
   cutoff <- cutpoint
   cutoff.type = "none"; cutoffN = 100 #functionality to be added later
-  
+  weights = NULL
   #put checks here
   if(length(cutoff)==0) cutoff = NA;  
   
