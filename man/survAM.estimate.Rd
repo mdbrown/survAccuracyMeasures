@@ -1,6 +1,6 @@
 \name{survAM.estimate}
 \alias{survAM.estimate}
-\title{Estimate accuracy measures for a risk prediction marker from survival data}
+\title{Semi-parametric estimates of accuracy measures for a risk prediction marker from survival data}
 \usage{
   survAM.estimate(time, event, marker, weights = NULL, predict.time,
     measures = c("all"), cutpoint = median(marker),
