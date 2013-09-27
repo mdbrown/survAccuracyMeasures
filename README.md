@@ -108,67 +108,6 @@ tmp$CIbounds
 
 For more information see `?survAM.estimate`. 
 
-### Case-Cohort Design
-
-Estimation using a case-cohort subcohort design is also permitted. Sample weights must first be calculated. 
-
-
-```r
-# generate a sub-cohort from SimData
-set.seed(12321)
-# create a sample index. 1 if sampled, 0 if not
-N <- nrow(SimData)
-sampleInd <- rep(0, N)
-
-# sample all with observed failure time. (200 individuals)
-sampleInd[SimData$status == 1] <- 1
-
-# sample 150 more observations from the entire data set without replacement
-sampleInd[sample(1:N, 150)] <- 1
-
-table(sampleInd)  #total number of subcohort is 293 
-```
-
-```
-## sampleInd
-##   0   1 
-## 207 293
-```
-
-```r
-
-## now calculate sample weights first calculate the Pr(Sampled from cohort)
-## for each observation
-sampleProb <- numeric(500)
-# all non-censored observations were sampled, so their sample probability is
-# 1
-sampleProb[SimData$status == 1] <- 1
-sampleProb[SimData$status == 0] <- 150/N
-
-SimData$weights <- 1/sampleProb
-
-subCohortData <- SimData[sampleInd == 1, ]
-
-# estimate accuracy measures using only the subcohort data
-survAM.estimate(time = subCohortData$survTime, event = subCohortData$status, 
-    marker = subCohortData$Y, weights = subCohortData$weights, predict.time = 2, 
-    cutpoint = 0, SEmethod = "normal")
-```
-
-```
-## 
-##         estimate     se      lower 0.95  upper 0.95
-## coef       1.088     0.167         0.761       1.414 
-## AUC        0.788     0.034         0.713       0.847 
-## TPR(c)     0.770     0.058         0.639       0.864 
-## FPR(c)     0.347     0.057         0.245       0.465 
-## PPV(c)     0.386     0.042         0.308       0.471 
-## NPV(c)     0.909     0.020         0.862       0.942 
-## 
-##  marker cutpoint: c = 0
-```
-
-
 
 
 ### References
