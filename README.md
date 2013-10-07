@@ -51,11 +51,11 @@ survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimDat
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
 ## coef       1.010     0.085         0.842       1.177 
-## AUC        0.775     0.019         0.735       0.810 
+## AUC        0.775     0.019         0.736       0.809 
 ## TPR(c)     0.768     0.027         0.711       0.816 
-## FPR(c)     0.377     0.024         0.331       0.425 
+## FPR(c)     0.377     0.024         0.332       0.425 
 ## PPV(c)     0.375     0.031         0.317       0.438 
-## NPV(c)     0.901     0.014         0.871       0.925 
+## NPV(c)     0.901     0.013         0.872       0.924 
 ## 
 ##  marker cutpoint: c = 0
 ```
@@ -74,8 +74,8 @@ tmp
 ```
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
-## coef       1.010     0.083         0.848       1.172 
-## AUC        0.775     0.018         0.738       0.808 
+## coef       1.010     0.081         0.852       1.168 
+## AUC        0.775     0.017         0.740       0.806 
 ## TPR(c)     0.768     0.027         0.711       0.817 
 ## 
 ##  marker cutpoint: c = 0
@@ -101,8 +101,8 @@ tmp$CIbounds
 
 ```
 ##        coef    AUC    TPR
-## upper 1.172 0.8078 0.8168
-## lower 0.848 0.7378 0.7106
+## upper 1.168 0.8062 0.8168
+## lower 0.852 0.7398 0.7105
 ```
 
 
