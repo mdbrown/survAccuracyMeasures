@@ -105,7 +105,7 @@ getEstimates <- function(data,
     subdata = cbind(data[ooo,],data.RT[,c(2)], linearY[ooo])
     names(subdata)=c("times","status","y","wi","vi","Sy","linearY")
 
-    jjunk = Est.Wexp(subdata,N,RT.out,predict.time,vp,typex,typey, resid(fit, "score"), fit$var)
+    jjunk = Est.Wexp(subdata,N,RT.out,predict.time,vp,typex,typey, resid(fit, "score")[ooo], fit$var)
     Wexp = data.frame(cbind(jjunk$Wexp.beta,jjunk$Wexp.AUC,jjunk$Wexp.vp))
     
     se = sqrt(Est.Var.CCH.trueweights(N,Wexp,subdata,subdata$status, subcohort))  

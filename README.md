@@ -1,7 +1,7 @@
 survAccuracyMeasures
 =============================================
 
-This R package estimates accuracy measures for risk prediction markers from survival data. It consists of the function `survAM.estimate` which estimates the $AUC$, $TPR(c)$, $FPR(c)$, $PPV(c)$, and $NPV(c)$ for for a specific timepoint and marker cutoff value c. Standard errors, and confidence intervals are also computed. Either analytic or bootstrap standard errors can be computed. 
+This R package computes semi-parametric estimates of accuracy measures for risk prediction markers from survival data. It consists of the function `survAM.estimate` which estimates the $AUC$, $TPR(c)$, $FPR(c)$, $PPV(c)$, and $NPV(c)$ for for a specific timepoint and marker cutoff value c. Standard errors, and confidence intervals are also computed. Either analytic or bootstrap standard errors can be computed. Estimation of accuracy measures for the case-cohort design is also provided.
 
 For more information, see references below. 
 
@@ -51,11 +51,11 @@ survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimDat
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
 ## coef       1.010     0.085         0.842       1.177 
-## AUC        0.775     0.019         0.736       0.809 
+## AUC        0.775     0.019         0.735       0.810 
 ## TPR(c)     0.768     0.027         0.711       0.816 
-## FPR(c)     0.377     0.024         0.332       0.425 
+## FPR(c)     0.377     0.024         0.331       0.425 
 ## PPV(c)     0.375     0.031         0.317       0.438 
-## NPV(c)     0.901     0.013         0.872       0.924 
+## NPV(c)     0.901     0.014         0.871       0.925 
 ## 
 ##  marker cutpoint: c = 0
 ```
@@ -74,9 +74,9 @@ tmp
 ```
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
-## coef       1.010     0.074         0.865       1.154 
-## AUC        0.775     0.018         0.737       0.808 
-## TPR(c)     0.768     0.028         0.708       0.818 
+## coef       1.010     0.083         0.848       1.172 
+## AUC        0.775     0.018         0.738       0.808 
+## TPR(c)     0.768     0.027         0.711       0.817 
 ## 
 ##  marker cutpoint: c = 0
 ```
@@ -100,9 +100,9 @@ tmp$CIbounds
 ```
 
 ```
-##         coef    AUC    TPR
-## upper 1.1543 0.8084 0.8183
-## lower 0.8654 0.7371 0.7085
+##        coef    AUC    TPR
+## upper 1.172 0.8078 0.8168
+## lower 0.848 0.7378 0.7106
 ```
 
 

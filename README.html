@@ -3,6 +3,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=9" >
 
 <title>survAccuracyMeasures</title>
 
@@ -184,7 +185,7 @@ hljs.initHighlightingOnLoad();
 <body>
 <h1>survAccuracyMeasures</h1>
 
-<p>This R package estimates accuracy measures for risk prediction markers from survival data. It consists of the function <code>survAM.estimate</code> which estimates the \( AUC \), \( TPR(c) \), \( FPR(c) \), \( PPV(c) \), and \( NPV(c) \) for for a specific timepoint and marker cutoff value c. Standard errors, and confidence intervals are also computed. Either analytic or bootstrap standard errors can be computed. Estimation of accuracy measures for the case-cohort design is also provided.</p>
+<p>This R package computes semi-parametric estimates of accuracy measures for risk prediction markers from survival data. It consists of the function <code>survAM.estimate</code> which estimates the \( AUC \), \( TPR(c) \), \( FPR(c) \), \( PPV(c) \), and \( NPV(c) \) for for a specific timepoint and marker cutoff value c. Standard errors, and confidence intervals are also computed. Either analytic or bootstrap standard errors can be computed. Estimation of accuracy measures for the case-cohort design is also provided.</p>
 
 <p>For more information, see references below. </p>
 
@@ -222,11 +223,11 @@ survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimDat
 <pre><code>## 
 ##         estimate     se      lower 0.95  upper 0.95
 ## coef       1.010     0.085         0.842       1.177 
-## AUC        0.775     0.019         0.736       0.809 
+## AUC        0.775     0.019         0.735       0.810 
 ## TPR(c)     0.768     0.027         0.711       0.816 
-## FPR(c)     0.377     0.024         0.332       0.425 
+## FPR(c)     0.377     0.024         0.331       0.425 
 ## PPV(c)     0.375     0.031         0.317       0.438 
-## NPV(c)     0.901     0.013         0.872       0.924 
+## NPV(c)     0.901     0.014         0.871       0.925 
 ## 
 ##  marker cutpoint: c = 0
 </code></pre>
@@ -241,9 +242,9 @@ tmp
 
 <pre><code>## 
 ##         estimate     se      lower 0.95  upper 0.95
-## coef       1.010     0.074         0.865       1.154 
-## AUC        0.775     0.018         0.737       0.808 
-## TPR(c)     0.768     0.028         0.708       0.818 
+## coef       1.010     0.083         0.848       1.172 
+## AUC        0.775     0.018         0.738       0.808 
+## TPR(c)     0.768     0.027         0.711       0.817 
 ## 
 ##  marker cutpoint: c = 0
 </code></pre>
@@ -261,67 +262,12 @@ tmp$estimates
 tmp$CIbounds
 </code></pre>
 
-<pre><code>##         coef    AUC    TPR
-## upper 1.1543 0.8084 0.8183
-## lower 0.8654 0.7371 0.7085
+<pre><code>##        coef    AUC    TPR
+## upper 1.172 0.8078 0.8168
+## lower 0.848 0.7378 0.7106
 </code></pre>
 
 <p>For more information see <code>?survAM.estimate</code>. </p>
-
-<h3>Case-Cohort Design</h3>
-
-<p>Estimation using a case-cohort subcohort design is also permitted. Sample weights must first be calculated. </p>
-
-<pre><code class="r"># generate a sub-cohort from SimData
-set.seed(12321)
-# create a sample index. 1 if sampled, 0 if not
-N &lt;- nrow(SimData)
-sampleInd &lt;- rep(0, N)
-
-# sample all with observed failure time. (200 individuals)
-sampleInd[SimData$status == 1] &lt;- 1
-
-# sample 150 more observations from the entire data set without replacement
-sampleInd[sample(1:N, 150)] &lt;- 1
-
-table(sampleInd)  #total number of subcohort is 293 
-</code></pre>
-
-<pre><code>## sampleInd
-##   0   1 
-## 207 293
-</code></pre>
-
-<pre><code class="r">
-## now calculate sample weights first calculate the Pr(Sampled from cohort)
-## for each observation
-sampleProb &lt;- numeric(500)
-# all non-censored observations were sampled, so their sample probability is
-# 1
-sampleProb[SimData$status == 1] &lt;- 1
-sampleProb[SimData$status == 0] &lt;- 150/N
-
-SimData$weights &lt;- 1/sampleProb
-
-subCohortData &lt;- SimData[sampleInd == 1, ]
-
-# estimate accuracy measures using only the subcohort data
-survAM.estimate(time = subCohortData$survTime, event = subCohortData$status, 
-    marker = subCohortData$Y, weights = subCohortData$weights, predict.time = 2, 
-    cutpoint = 0, SEmethod = &quot;normal&quot;)
-</code></pre>
-
-<pre><code>## 
-##         estimate     se      lower 0.95  upper 0.95
-## coef       1.088     0.167         0.761       1.414 
-## AUC        0.788     0.034         0.713       0.847 
-## TPR(c)     0.770     0.058         0.639       0.864 
-## FPR(c)     0.347     0.057         0.245       0.465 
-## PPV(c)     0.386     0.042         0.308       0.471 
-## NPV(c)     0.909     0.020         0.862       0.942 
-## 
-##  marker cutpoint: c = 0
-</code></pre>
 
 <h3>References</h3>
 
