@@ -11,11 +11,11 @@ For more information, see references below.
 
 
 ```r
-library(survAccuracyMeasures)
-```
+#download the package from github
+if (!require("devtools")) install.packages("devtools")
+devtools::install_github("survAccuracyMeasures", "mdbrown")
 
-```
-## Loading required package: survival Loading required package: splines
+library(survAccuracyMeasures)
 ```
 
 ```r
