@@ -261,6 +261,18 @@ img {
 /*******************************************************************************
 Full-Width Styles
 *******************************************************************************/
+.navbar-inverse .navbar-inner {
+  background-color: none;
+  background-image: none;
+  border-color: none;
+  border-radius:0; 
+}
+.navbar-inverse .btn-navbar {
+background-image: none;
+}
+.navbar-inverse .navbar-inner {
+  background: none;
+}
 
 .outer {
   width: 100%;
@@ -273,9 +285,16 @@ Full-Width Styles
   margin: 0 auto;
 }
 
+.wrapper {
+  width:600px;
+  margin:0 auto;
+}
+
 #forkme_banner {
   display: block;
-  position: absolute;
+  position: relative;
+  float:right;
+  width:130px;
   top:0;
   right: 10px;
   z-index: 10;
