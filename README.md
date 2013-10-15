@@ -111,18 +111,15 @@ For more information see `?survAM.estimate`.
 To validate the accuracy of estimates produced by the package, we ran several simulations under many different scenarios. Results for a single example, where <em>AUC = 0.75</em> is shown below. 1,000 cohort data sets were simulated from a proportional hazards model with sample size <em>n = 1,000</em> and <em>70%</em> censoring. Mean estimates for summary measures and SE are shown below, which can be compared to the true measure values and the empirical SE, respectively.
 
 
-<!-- html table generated in R 3.0.2 by xtable 1.7-1 package -->
-<!-- Tue Oct 15 15:25:37 2013 -->
-<TABLE border=1>
-<TR> <TH> Names </TH> <TH> TrueValue </TH> <TH> MeanEst. </TH> <TH> Emp.SE </TH> <TH> MeanEst.SE </TH>  </TR>
-  <TR> <TD> β </TD> <TD align="right"> 0.879 </TD> <TD align="right"> 0.880 </TD> <TD align="right"> 0.064 </TD> <TD align="right"> 0.064 </TD> </TR>
-  <TR> <TD> AUC </TD> <TD align="right"> 0.750 </TD> <TD align="right"> 0.749 </TD> <TD align="right"> 0.015 </TD> <TD align="right"> 0.015 </TD> </TR>
-  <TR> <TD> TPR(0) </TD> <TD align="right"> 0.770 </TD> <TD align="right"> 0.769 </TD> <TD align="right"> 0.020 </TD> <TD align="right"> 0.020 </TD> </TR>
-  <TR> <TD> FPR(0) </TD> <TD align="right"> 0.420 </TD> <TD align="right"> 0.420 </TD> <TD align="right"> 0.016 </TD> <TD align="right"> 0.017 </TD> </TR>
-  <TR> <TD> PPV(0) </TD> <TD align="right"> 0.350 </TD> <TD align="right"> 0.350 </TD> <TD align="right"> 0.021 </TD> <TD align="right"> 0.021 </TD> </TR>
-  <TR> <TD> NPV(0) </TD> <TD align="right"> 0.900 </TD> <TD align="right"> 0.895 </TD> <TD align="right"> 0.010 </TD> <TD align="right"> 0.011 </TD> </TR>
-   </TABLE>
 
+    | True Value | MeanEst. | Emp. SE | MeanEst.SE
+   
+      β |   0.879 |   0.880 | 0.064 |     0.064
+    AUC |   0.750 |   0.749 | 0.015 |     0.015
+ TPR(0) |   0.770 |   0.769 | 0.020 |     0.020
+ FPR(0) |   0.420 |   0.420 | 0.016 |     0.017
+ PPV(0) |   0.350 |   0.350 | 0.021 |     0.021
+ NPV(0) |   0.900 |   0.895 | 0.010 |     0.011
 
 ### References
 Pepe MS, Zheng Y, Jin Y. Evaluating the ROC performance of markers for future events. *Lifetime Data Analysis.* 2008, 14: 86-113.
