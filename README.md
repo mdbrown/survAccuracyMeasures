@@ -107,7 +107,21 @@ tmp$CIbounds
 
 
 For more information see `?survAM.estimate`. 
+### Validation of R package
+To validate the accuracy of estimates produced by the package, we ran several simulations under many different scenarios. Results for a single example, where <em>AUC = 0.75</em> is shown below. 1,000 cohort data sets were simulated from a proportional hazards model with sample size <em>n = 1,000</em> and <em>70%</em> censoring. Mean estimates for summary measures and SE are shown below, which can be compared to the true measure values and the empirical SE, respectively.
 
+
+<!-- html table generated in R 3.0.2 by xtable 1.7-1 package -->
+<!-- Tue Oct 15 15:25:37 2013 -->
+<TABLE border=1>
+<TR> <TH> Names </TH> <TH> TrueValue </TH> <TH> MeanEst. </TH> <TH> Emp.SE </TH> <TH> MeanEst.SE </TH>  </TR>
+  <TR> <TD> β </TD> <TD align="right"> 0.879 </TD> <TD align="right"> 0.880 </TD> <TD align="right"> 0.064 </TD> <TD align="right"> 0.064 </TD> </TR>
+  <TR> <TD> AUC </TD> <TD align="right"> 0.750 </TD> <TD align="right"> 0.749 </TD> <TD align="right"> 0.015 </TD> <TD align="right"> 0.015 </TD> </TR>
+  <TR> <TD> TPR(0) </TD> <TD align="right"> 0.770 </TD> <TD align="right"> 0.769 </TD> <TD align="right"> 0.020 </TD> <TD align="right"> 0.020 </TD> </TR>
+  <TR> <TD> FPR(0) </TD> <TD align="right"> 0.420 </TD> <TD align="right"> 0.420 </TD> <TD align="right"> 0.016 </TD> <TD align="right"> 0.017 </TD> </TR>
+  <TR> <TD> PPV(0) </TD> <TD align="right"> 0.350 </TD> <TD align="right"> 0.350 </TD> <TD align="right"> 0.021 </TD> <TD align="right"> 0.021 </TD> </TR>
+  <TR> <TD> NPV(0) </TD> <TD align="right"> 0.900 </TD> <TD align="right"> 0.895 </TD> <TD align="right"> 0.010 </TD> <TD align="right"> 0.011 </TD> </TR>
+   </TABLE>
 
 
 ### References
