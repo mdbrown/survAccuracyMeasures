@@ -112,8 +112,8 @@ To validate the accuracy of estimates produced by the package, we ran several si
 
 
 
-    | True Value | MeanEst. | Emp. SE | MeanEst.SE
-   
+        | True Value | MeanEst. | Emp. SE | MeanEst.SE
+--------|------------|----------|---------|-----------    
       β |   0.879 |   0.880 | 0.064 |     0.064
     AUC |   0.750 |   0.749 | 0.015 |     0.015
  TPR(0) |   0.770 |   0.769 | 0.020 |     0.020
