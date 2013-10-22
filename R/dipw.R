@@ -11,18 +11,21 @@ EstROC.DIPW.NP.FUN <- function(data0,u0,type,c0=NULL,rtn="EST")
 {
 ## data0: cohortdata cbind(xi,di,yi,vi,zi,si,psi,wi) with si  = stratum by di and zi; psi: marginal stratum probability 
 ## set vi, zi, si, psi, wi all to 1 for a full cohort analysis 
-	  N = nrow(data0); ## cohort size
-   	  data = data0[data0$vi==1,]  ## sampled data
-     data = data [order(data$yi),] ## sorted by marker
-      ck = data$yi; 
-      wgtk = data$wi;  
-	   xk = data$xi; 
-      sk = data$si; 
-      psk=data$psi; 
+	  
+  N = nrow(data0); ## cohort size
+  
+  data = data0[data0$vi==1,]  ## sampled data
+  data = data [order(data$yi),] ## sorted by marker
+      
+  ck = data$yi;     
+  wgtk = data$wi;  
+	xk = data$xi; 
+  sk = data$si; 
+  psk=data$psi; 
  
-	   nc = length(ck); # sampled size 
-	   ind.ck = (1:nc)[order(ck)]
-      CWk = WGT.FUN(data[,c(1,2)],data0)  # use full cohort xi di to calculate censoring weights
+	nc = length(ck); # sampled size 
+	ind.ck = (1:nc)[order(ck)]
+  CWk = WGT.FUN(data[,c(1,2)],data0)  # use full cohort xi di to calculate censoring weights
 
     	St0.Fck = sum.I(ck,">=",ck,wgtk*CWk*(xk >= t0))/sum(CWk*wgtk)
     	Ft0.Fck = sum.I(ck,">=",ck,wgtk*CWk*(xk <  t0))/sum(CWk*wgtk)
