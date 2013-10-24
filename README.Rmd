@@ -1,9 +1,10 @@
 survAccuracyMeasures
 =============================================
 
-This R package computes semi-parametric estimates of accuracy measures for risk prediction markers from survival data. It consists of the function `survAM.estimate` which estimates the $AUC$, $TPR(c)$, $FPR(c)$, $PPV(c)$, and $NPV(c)$ for for a specific timepoint and marker cutoff value c. Standard errors, and confidence intervals are also computed. Either analytic or bootstrap standard errors can be computed. Estimation of accuracy measures for the case-cohort design is also provided.
+This R package computes non-parametric and semi-parametric estimates of accuracy measures for risk prediction markers from survival data. It consists of the function `survAM.estimate` which estimates the *AUC*, *TPR( c )*, *FPR( c )*, *PPV( c )*, and *NPV( c )* for for a specific timepoint and marker cutoff value c. Standard errors, and confidence intervals are also computed. Either analytic or bootstrap standard errors can be computed. 
 
 For more information, see references below. 
+
 
 
 ## Tutorial
@@ -18,16 +19,34 @@ head(SimData)
 ```
 
 
-Estimate all measures, using asymptotic normality to estimate standard errors. 
+Estimate all measures, using asymptotic normality to estimate standard errors. First we obtain non-parametric estimates using double IPW estimators:
 
 ```{r}
 #Estimate all the measures at future time 2, with a marker cutpoint at 0. 
 
+#non-parametric estimates
 survAM.estimate(time =SimData$survTime, 
                 event = SimData$status, 
-                marker = SimData$Y, predict.time = 2, 
+                marker = SimData$Y,
+                ESTmethod = "NP",
+                predict.time = 2, 
                  cutpoint = 0, SEmethod = "normal")
 ```
+
+Alternatively, we can use semi-parametric estimates based on a proportional hazards model:
+
+
+```{r}
+#semi-parametric estimates assuming a cox model
+survAM.estimate(time =SimData$survTime, 
+                event = SimData$status, 
+                marker = SimData$Y,
+                ESTmethod = "SP",
+                predict.time = 2, 
+                 cutpoint = 0, SEmethod = "normal")
+```
+
+
 
 Only estimate the $AUC$ and $TPR(0)$. This time use bootstrapping to obtain the standard errors. 
 
@@ -46,9 +65,24 @@ tmp$CIbounds
 
 For more information see `?survAM.estimate`. 
 
+### Validation of R package
+To validate the accuracy of estimates produced by the package, we ran several simulations under many different scenarios. Results for a single example for semi-parametric estimates (nonparametric estimates will be added soon), where *AUC = 0.75* is shown below. 1,000 cohort data sets were simulated from a proportional hazards model with sample size *n = 1,000* and *70%* censoring. Mean estimates for summary measures and SE are shown below, which can be compared to the true measure values and the empirical SE, respectively.
+
+
+
+        | True Value | Mean(Est.) | Emp. SE | Mean(Est. SE)
+--------|------------|----------|---------|-----------    
+      β |   0.879 |   0.880 | 0.064 |     0.064
+    AUC |   0.750 |   0.749 | 0.015 |     0.015
+ TPR(0) |   0.770 |   0.769 | 0.020 |     0.020
+ FPR(0) |   0.420 |   0.420 | 0.016 |     0.017
+ PPV(0) |   0.350 |   0.350 | 0.021 |     0.021
+ NPV(0) |   0.900 |   0.895 | 0.010 |     0.011
 
 
 ### References
+Liu D, Cai T, Zheng Y. Evaluating the predictive value of biomarkers with stratified case-cohort design. *Biometrics* 2012, 4: 1219-1227.
+
 Pepe MS, Zheng Y, Jin Y. Evaluating the ROC performance of markers for future events. *Lifetime Data Analysis.* 2008, 14: 86-113.
 
 Zheng Y, Cai T, Pepe MS, Levy, W. Time-dependent predictive values of prognostic biomarkers with failure time outcome. *JASA* 2008, 103: 362-368.

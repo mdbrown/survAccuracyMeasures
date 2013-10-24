@@ -1,5 +1,5 @@
-survAM.estimateNEW <- function(time, event, marker, predict.time, measures = c('all'), 
-                   cutpoint = median(marker), ESTmethod = "Non-Parametric", CImethod = "logit.transformed", 
+survAM.estimate <- function(time, event, marker, predict.time, measures = c('all'), 
+                   cutpoint = median(marker), ESTmethod = "NP", CImethod = "logit.transformed", 
                    SEmethod ="normal", bootstraps = 1000, alpha=0.05){
  
   cutoff.type = "none";

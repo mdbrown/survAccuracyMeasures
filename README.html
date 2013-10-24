@@ -185,7 +185,7 @@ hljs.initHighlightingOnLoad();
 <body>
 <h1>survAccuracyMeasures</h1>
 
-<p>This R package computes semi-parametric estimates of accuracy measures for risk prediction markers from survival data. It consists of the function <code>survAM.estimate</code> which estimates the \( AUC \), \( TPR(c) \), \( FPR(c) \), \( PPV(c) \), and \( NPV(c) \) for for a specific timepoint and marker cutoff value c. Standard errors, and confidence intervals are also computed. Either analytic or bootstrap standard errors can be computed. Estimation of accuracy measures for the case-cohort design is also provided.</p>
+<p>This R package computes non-parametric and semi-parametric estimates of accuracy measures for risk prediction markers from survival data. It consists of the function <code>survAM.estimate</code> which estimates the <em>AUC</em>, <em>TPR( c )</em>, <em>FPR( c )</em>, <em>PPV( c )</em>, and <em>NPV( c )</em> for for a specific timepoint and marker cutoff value c. Standard errors, and confidence intervals are also computed. Either analytic or bootstrap standard errors can be computed. </p>
 
 <p>For more information, see references below. </p>
 
@@ -212,22 +212,47 @@ head(SimData)
 ## 6   0.3001      1  0.02419
 </code></pre>
 
-<p>Estimate all measures, using asymptotic normality to estimate standard errors. </p>
+<p>Estimate all measures, using asymptotic normality to estimate standard errors. First we obtain non-parametric estimates using double IPW estimators:</p>
 
 <pre><code class="r"># Estimate all the measures at future time 2, with a marker cutpoint at 0.
 
+# non-parametric estimates
 survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimData$Y, 
-    predict.time = 2, cutpoint = 0, SEmethod = &quot;normal&quot;)
+    ESTmethod = &quot;NP&quot;, predict.time = 2, cutpoint = 0, SEmethod = &quot;normal&quot;)
 </code></pre>
 
 <pre><code>## 
+## Non-Parametric estimates of accuracy measures:
+##    (SE&#39;s calculated using normal approximation)
+## 
+##         estimate     se      lower 0.95  upper 0.95
+## AUC        0.750     0.027         0.693       0.800 
+## TPR(c)     0.699     0.046         0.602       0.781 
+## FPR(c)     0.399     0.028         0.346       0.455 
+## PPV(c)     0.334     0.034         0.271       0.405 
+## NPV(c)     0.874     0.022         0.823       0.912 
+## 
+##  marker cutpoint: c = 0
+</code></pre>
+
+<p>Alternatively, we can use semi-parametric estimates based on a proportional hazards model:</p>
+
+<pre><code class="r"># semi-parametric estimates assuming a cox model
+survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimData$Y, 
+    ESTmethod = &quot;SP&quot;, predict.time = 2, cutpoint = 0, SEmethod = &quot;normal&quot;)
+</code></pre>
+
+<pre><code>## 
+## Semi-Parametric estimates of accuracy measures:
+##    (SE&#39;s calculated using normal approximation)
+## 
 ##         estimate     se      lower 0.95  upper 0.95
 ## coef       1.010     0.085         0.842       1.177 
-## AUC        0.775     0.019         0.736       0.809 
+## AUC        0.775     0.019         0.735       0.810 
 ## TPR(c)     0.768     0.027         0.711       0.816 
-## FPR(c)     0.377     0.024         0.332       0.425 
+## FPR(c)     0.377     0.024         0.331       0.425 
 ## PPV(c)     0.375     0.031         0.317       0.438 
-## NPV(c)     0.901     0.013         0.872       0.924 
+## NPV(c)     0.901     0.014         0.871       0.925 
 ## 
 ##  marker cutpoint: c = 0
 </code></pre>
@@ -241,10 +266,12 @@ tmp
 </code></pre>
 
 <pre><code>## 
+## Non-Parametric estimates of accuracy measures:
+##    (SE&#39;s calculated using the bootstrap)
+## 
 ##         estimate     se      lower 0.95  upper 0.95
-## coef       1.010     0.081         0.852       1.168 
-## AUC        0.775     0.017         0.740       0.806 
-## TPR(c)     0.768     0.027         0.711       0.817 
+## AUC        0.750     0.031         0.685       0.806 
+## TPR(c)     0.699     0.048         0.598       0.784 
 ## 
 ##  marker cutpoint: c = 0
 </code></pre>
@@ -253,8 +280,8 @@ tmp
 tmp$estimates
 </code></pre>
 
-<pre><code>##   coef    AUC    TPR 
-## 1.0099 0.7748 0.7679
+<pre><code>##        AUC   TPR
+## 266 0.7501 0.699
 </code></pre>
 
 <pre><code class="r">
@@ -262,14 +289,73 @@ tmp$estimates
 tmp$CIbounds
 </code></pre>
 
-<pre><code>##        coef    AUC    TPR
-## upper 1.168 0.8062 0.8168
-## lower 0.852 0.7398 0.7105
+<pre><code>##          AUC    TPR
+## upper 0.8058 0.7839
+## lower 0.6847 0.5978
 </code></pre>
 
 <p>For more information see <code>?survAM.estimate</code>. </p>
 
+<h3>Validation of R package</h3>
+
+<p>To validate the accuracy of estimates produced by the package, we ran several simulations under many different scenarios. Results for a single example for semi-parametric estimates (nonparametric estimates will be added soon), where <em>AUC = 0.75</em> is shown below. 1,000 cohort data sets were simulated from a proportional hazards model with sample size <em>n = 1,000</em> and <em>70%</em> censoring. Mean estimates for summary measures and SE are shown below, which can be compared to the true measure values and the empirical SE, respectively.</p>
+
+<table><thead>
+<tr>
+<th></th>
+<th>True Value</th>
+<th>Mean(Est.)</th>
+<th>Emp. SE</th>
+<th>Mean(Est. SE)</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>ß</td>
+<td>0.879</td>
+<td>0.880</td>
+<td>0.064</td>
+<td>0.064</td>
+</tr>
+<tr>
+<td>AUC</td>
+<td>0.750</td>
+<td>0.749</td>
+<td>0.015</td>
+<td>0.015</td>
+</tr>
+<tr>
+<td>TPR(0)</td>
+<td>0.770</td>
+<td>0.769</td>
+<td>0.020</td>
+<td>0.020</td>
+</tr>
+<tr>
+<td>FPR(0)</td>
+<td>0.420</td>
+<td>0.420</td>
+<td>0.016</td>
+<td>0.017</td>
+</tr>
+<tr>
+<td>PPV(0)</td>
+<td>0.350</td>
+<td>0.350</td>
+<td>0.021</td>
+<td>0.021</td>
+</tr>
+<tr>
+<td>NPV(0)</td>
+<td>0.900</td>
+<td>0.895</td>
+<td>0.010</td>
+<td>0.011</td>
+</tr>
+</tbody></table>
+
 <h3>References</h3>
+
+<p>Liu D, Cai T, Zheng Y. Evaluating the predictive value of biomarkers with stratified case-cohort design. <em>Biometrics</em> 2012, 4: 1219-1227.</p>
 
 <p>Pepe MS, Zheng Y, Jin Y. Evaluating the ROC performance of markers for future events. <em>Lifetime Data Analysis.</em> 2008, 14: 86-113.</p>
 
