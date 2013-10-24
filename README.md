@@ -3,7 +3,7 @@ survAccuracyMeasures
 
 This R package computes non-parametric and semi-parametric estimates of accuracy measures for risk prediction markers from survival data. It consists of the function `survAM.estimate` which estimates the *AUC*, *TPR( c )*, *FPR( c )*, *PPV( c )*, and *NPV( c )* for for a specific timepoint and marker cutoff value c. Standard errors, and confidence intervals are also computed. Either analytic or bootstrap standard errors can be computed. 
 
-For more information, see references below. 
+For detailed information regarding estimation methods, see references below. 
 
 
 
@@ -38,7 +38,7 @@ head(SimData)
 
 
 
-Estimate all measures, using asymptotic normality to estimate standard errors. First we obtain non-parametric estimates using double IPW estimators:
+Estimate all measures, using asymptotic normality to estimate standard errors. First we obtain non-parametric estimates using double inverse probablity weighting:
 
 
 ```r
@@ -46,7 +46,7 @@ Estimate all measures, using asymptotic normality to estimate standard errors. F
 
 # non-parametric estimates
 survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimData$Y, 
-    ESTmethod = "NP", predict.time = 2, cutpoint = 0, SEmethod = "normal")
+    ESTmethod = "NP", predict.time = 1, cutpoint = 0, SEmethod = "normal")
 ```
 
 ```
@@ -55,24 +55,24 @@ survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimDat
 ##    (SE's calculated using normal approximation)
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
-## AUC        0.750     0.027         0.693       0.800 
-## TPR(c)     0.699     0.046         0.602       0.781 
-## FPR(c)     0.399     0.028         0.346       0.455 
-## PPV(c)     0.334     0.034         0.271       0.405 
-## NPV(c)     0.874     0.022         0.823       0.912 
+## AUC        0.786     0.031         0.718       0.841 
+## TPR(c)     0.769     0.052         0.652       0.856 
+## FPR(c)     0.410     0.025         0.362       0.461 
+## PPV(c)     0.231     0.030         0.178       0.294 
+## NPV(c)     0.941     0.015         0.904       0.964 
 ## 
 ##  marker cutpoint: c = 0
 ```
 
 
-Alternatively, we can use semi-parametric estimates based on a proportional hazards model:
+Alternatively, we can calculate semi-parametric estimates based on a proportional hazards model:
 
 
 
 ```r
 # semi-parametric estimates assuming a cox model
 survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimData$Y, 
-    ESTmethod = "SP", predict.time = 2, cutpoint = 0, SEmethod = "normal")
+    ESTmethod = "SP", predict.time = 1, cutpoint = 0, SEmethod = "normal")
 ```
 
 ```
@@ -82,11 +82,11 @@ survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimDat
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
 ## coef       1.010     0.085         0.842       1.177 
-## AUC        0.775     0.019         0.735       0.810 
-## TPR(c)     0.768     0.027         0.711       0.816 
-## FPR(c)     0.377     0.024         0.331       0.425 
-## PPV(c)     0.375     0.031         0.317       0.438 
-## NPV(c)     0.901     0.014         0.871       0.925 
+## AUC        0.768     0.020         0.727       0.805 
+## TPR(c)     0.788     0.027         0.731       0.836 
+## FPR(c)     0.412     0.023         0.368       0.459 
+## PPV(c)     0.241     0.028         0.191       0.300 
+## NPV(c)     0.943     0.009         0.924       0.958 
 ## 
 ##  marker cutpoint: c = 0
 ```
@@ -110,8 +110,8 @@ tmp
 ##    (SE's calculated using the bootstrap)
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
-## AUC        0.750     0.031         0.685       0.806 
-## TPR(c)     0.699     0.048         0.598       0.784 
+## AUC        0.750     0.026         0.696       0.798 
+## TPR(c)     0.699     0.041         0.614       0.773 
 ## 
 ##  marker cutpoint: c = 0
 ```
@@ -136,8 +136,8 @@ tmp$CIbounds
 
 ```
 ##          AUC    TPR
-## upper 0.8058 0.7839
-## lower 0.6847 0.5978
+## upper 0.7976 0.7726
+## lower 0.6958 0.6135
 ```
 
 

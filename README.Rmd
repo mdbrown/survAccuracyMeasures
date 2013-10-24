@@ -3,7 +3,7 @@ survAccuracyMeasures
 
 This R package computes non-parametric and semi-parametric estimates of accuracy measures for risk prediction markers from survival data. It consists of the function `survAM.estimate` which estimates the *AUC*, *TPR( c )*, *FPR( c )*, *PPV( c )*, and *NPV( c )* for for a specific timepoint and marker cutoff value c. Standard errors, and confidence intervals are also computed. Either analytic or bootstrap standard errors can be computed. 
 
-For more information, see references below. 
+For detailed information regarding estimation methods, see references below. 
 
 
 
@@ -19,7 +19,7 @@ head(SimData)
 ```
 
 
-Estimate all measures, using asymptotic normality to estimate standard errors. First we obtain non-parametric estimates using double IPW estimators:
+Estimate all measures, using asymptotic normality to estimate standard errors. First we obtain non-parametric estimates using double inverse probablity weighting:
 
 ```{r}
 #Estimate all the measures at future time 2, with a marker cutpoint at 0. 
@@ -29,11 +29,11 @@ survAM.estimate(time =SimData$survTime,
                 event = SimData$status, 
                 marker = SimData$Y,
                 ESTmethod = "NP",
-                predict.time = 2, 
+                predict.time = 1, 
                  cutpoint = 0, SEmethod = "normal")
 ```
 
-Alternatively, we can use semi-parametric estimates based on a proportional hazards model:
+Alternatively, we can calculate semi-parametric estimates based on a proportional hazards model:
 
 
 ```{r}
@@ -42,7 +42,7 @@ survAM.estimate(time =SimData$survTime,
                 event = SimData$status, 
                 marker = SimData$Y,
                 ESTmethod = "SP",
-                predict.time = 2, 
+                predict.time = 1, 
                  cutpoint = 0, SEmethod = "normal")
 ```
 
