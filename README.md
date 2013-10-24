@@ -12,6 +12,14 @@ For detailed information regarding estimation methods, see references below.
 
 
 ```r
+# install the package from github download the package from github
+if (!require("devtools")) install.packages("devtools")
+devtools::install_github("survMarkerTwoPhase", "mdbrown")
+```
+
+
+
+```r
 library(survAccuracyMeasures)
 ```
 
@@ -110,8 +118,8 @@ tmp
 ##    (SE's calculated using the bootstrap)
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
-## AUC        0.750     0.026         0.696       0.798 
-## TPR(c)     0.699     0.041         0.614       0.773 
+## AUC        0.750     0.027         0.694       0.799 
+## TPR(c)     0.699     0.041         0.613       0.773 
 ## 
 ##  marker cutpoint: c = 0
 ```
@@ -136,8 +144,8 @@ tmp$CIbounds
 
 ```
 ##          AUC    TPR
-## upper 0.7976 0.7726
-## lower 0.6958 0.6135
+## upper 0.7987 0.7729
+## lower 0.6943 0.6131
 ```
 
 

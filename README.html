@@ -191,6 +191,11 @@ hljs.initHighlightingOnLoad();
 
 <h2>Tutorial</h2>
 
+<pre><code class="r"># install the package from github download the package from github
+if (!require(&quot;devtools&quot;)) install.packages(&quot;devtools&quot;)
+devtools::install_github(&quot;survMarkerTwoPhase&quot;, &quot;mdbrown&quot;)
+</code></pre>
+
 <pre><code class="r">library(survAccuracyMeasures)
 </code></pre>
 
@@ -270,8 +275,8 @@ tmp
 ##    (SE&#39;s calculated using the bootstrap)
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
-## AUC        0.750     0.026         0.696       0.798 
-## TPR(c)     0.699     0.041         0.614       0.773 
+## AUC        0.750     0.027         0.694       0.799 
+## TPR(c)     0.699     0.041         0.613       0.773 
 ## 
 ##  marker cutpoint: c = 0
 </code></pre>
@@ -290,8 +295,8 @@ tmp$CIbounds
 </code></pre>
 
 <pre><code>##          AUC    TPR
-## upper 0.7976 0.7726
-## lower 0.6958 0.6135
+## upper 0.7987 0.7729
+## lower 0.6943 0.6131
 </code></pre>
 
 <p>For more information see <code>?survAM.estimate</code>. </p>
