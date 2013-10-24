@@ -65,25 +65,23 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
 
-<p>This R package computes semi-parametric estimates of accuracy measures for risk prediction markers from survival data. It consists of the function <code>survAM.estimate</code> which estimates the <em>AUC</em>, <em>TPR(c)</em>, <em>FPR(c)</em>, <em>PPV(c)</em>, and <em>NPV(c)</em> for for a specific timepoint and marker cutoff value c. Standard errors, and confidence intervals are also computed. Either analytic or bootstrap standard errors can be computed. </p>
+<p>This R package computes non-parametric and semi-parametric estimates of accuracy measures for risk prediction markers from survival data. It consists of the function <code>survAM.estimate</code> which estimates the <em>AUC</em>, <em>TPR( c )</em>, <em>FPR( c )</em>, <em>PPV( c )</em>, and <em>NPV( c )</em> for for a specific timepoint and marker cutoff value c. Standard errors, and confidence intervals are also computed. Either analytic or bootstrap standard errors can be computed. </p>
 
-<p>For more information, see references below. </p>
+<p>For detailed information regarding estimation methods, see references below. </p>
 
-<h2>
-<a name="tutorial" class="anchor" href="#tutorial"><span class="octicon octicon-link"></span></a>Tutorial</h2>
+<h2>Tutorial</h2>
 
-<div class="highlight highlight-r"><pre><span class="c">#download the package from github</span>
-<span class="c">if (!require("devtools")) install.packages("devtools")</span>
-<span class="c">devtools::install_github("survAccuracyMeasures", "mdbrown")</span>
+<pre><code class="r">library(survAccuracyMeasures)
+</code></pre>
 
-<span class="c">library(survAccuracyMeasures)</span>
-</pre></div>
+<pre><code>## Loading required package: survival Loading required package: splines
+</code></pre>
 
-<div class="highlight highlight-r"><pre>
-<span class="c"># simulated data for illustration</span>
-<span class="c">data(SimData)</span>
-<span class="c">head(SimData)</span>
-</pre></div>
+<pre><code class="r">
+# simulated data for illustration
+data(SimData)
+head(SimData)
+</code></pre>
 
 <pre><code>##   survTime status        Y
 ## 1   0.1197      1  1.49310
@@ -94,79 +92,150 @@
 ## 6   0.3001      1  0.02419
 </code></pre>
 
-<p>Estimate all measures, using asymptotic normality to estimate standard errors. </p>
+<p>Estimate all measures, using asymptotic normality to estimate standard errors. First we obtain non-parametric estimates using double inverse probablity weighting:</p>
 
-<div class="highlight highlight-r"><pre><span class="c"># Estimate all the measures at future time 2, with a marker cutpoint at 0.</span>
+<pre><code class="r"># Estimate all the measures at future time 2, with a marker cutpoint at 0.
 
-<span class="c">survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimData$Y, </span>
-<span class="c">    predict.time = 2, cutpoint = 0, SEmethod = "normal")</span>
-</pre></div>
+# non-parametric estimates
+survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimData$Y, 
+    ESTmethod = &quot;NP&quot;, predict.time = 1, cutpoint = 0, SEmethod = &quot;normal&quot;)
+</code></pre>
 
 <pre><code>## 
+## Non-Parametric estimates of accuracy measures:
+##    (SE&#39;s calculated using normal approximation)
+## 
+##         estimate     se      lower 0.95  upper 0.95
+## AUC        0.786     0.031         0.718       0.841 
+## TPR(c)     0.769     0.052         0.652       0.856 
+## FPR(c)     0.410     0.025         0.362       0.461 
+## PPV(c)     0.231     0.030         0.178       0.294 
+## NPV(c)     0.941     0.015         0.904       0.964 
+## 
+##  marker cutpoint: c = 0
+</code></pre>
+
+<p>Alternatively, we can calculate semi-parametric estimates based on a proportional hazards model:</p>
+
+<pre><code class="r"># semi-parametric estimates assuming a cox model
+survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimData$Y, 
+    ESTmethod = &quot;SP&quot;, predict.time = 1, cutpoint = 0, SEmethod = &quot;normal&quot;)
+</code></pre>
+
+<pre><code>## 
+## Semi-Parametric estimates of accuracy measures:
+##    (SE&#39;s calculated using normal approximation)
+## 
 ##         estimate     se      lower 0.95  upper 0.95
 ## coef       1.010     0.085         0.842       1.177 
-## AUC        0.775     0.019         0.736       0.809 
-## TPR(c)     0.768     0.027         0.711       0.816 
-## FPR(c)     0.377     0.024         0.332       0.425 
-## PPV(c)     0.375     0.031         0.317       0.438 
-## NPV(c)     0.901     0.013         0.872       0.924 
+## AUC        0.768     0.020         0.727       0.805 
+## TPR(c)     0.788     0.027         0.731       0.836 
+## FPR(c)     0.412     0.023         0.368       0.459 
+## PPV(c)     0.241     0.028         0.191       0.300 
+## NPV(c)     0.943     0.009         0.924       0.958 
 ## 
 ##  marker cutpoint: c = 0
 </code></pre>
 
-<p>Only estimate the <em>AUC</em> and <em>TPR(0)</em>. This time use bootstrapping to obtain the standard errors. </p>
+<p>Only estimate the \( AUC \) and \( TPR(0) \). This time use bootstrapping to obtain the standard errors. </p>
 
-<div class="highlight highlight-r"><pre><span class="c">tmp &lt;- survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimData$Y, </span>
-<span class="c">    predict.time = 2, measures = c("AUC", "TPR"), SEmethod = "bootstrap", bootstraps = 50, </span>
-<span class="c">    cutpoint = 0)</span>
-<span class="c">tmp</span>
-</pre></div>
+<pre><code class="r">tmp &lt;- survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimData$Y, 
+    predict.time = 2, measures = c(&quot;AUC&quot;, &quot;TPR&quot;), SEmethod = &quot;bootstrap&quot;, bootstraps = 50, 
+    cutpoint = 0)
+tmp
+</code></pre>
 
 <pre><code>## 
+## Non-Parametric estimates of accuracy measures:
+##    (SE&#39;s calculated using the bootstrap)
+## 
 ##         estimate     se      lower 0.95  upper 0.95
-## coef       1.010     0.081         0.852       1.168 
-## AUC        0.775     0.017         0.740       0.806 
-## TPR(c)     0.768     0.027         0.711       0.817 
+## AUC        0.750     0.026         0.696       0.798 
+## TPR(c)     0.699     0.041         0.614       0.773 
 ## 
 ##  marker cutpoint: c = 0
 </code></pre>
 
-<div class="highlight highlight-r"><pre><span class="c"># access the estimates</span>
-<span class="c">tmp$estimates</span>
-</pre></div>
-
-<pre><code>##   coef    AUC    TPR 
-## 1.0099 0.7748 0.7679
+<pre><code class="r"># access the estimates
+tmp$estimates
 </code></pre>
 
-<div class="highlight highlight-r"><pre>
-<span class="c"># and the confidence bounds</span>
-<span class="c">tmp$CIbounds</span>
-</pre></div>
+<pre><code>##        AUC   TPR
+## 266 0.7501 0.699
+</code></pre>
 
-<pre><code>##        coef    AUC    TPR
-## upper 1.168 0.8062 0.8168
-## lower 0.852 0.7398 0.7105
+<pre><code class="r">
+# and the confidence bounds
+tmp$CIbounds
+</code></pre>
+
+<pre><code>##          AUC    TPR
+## upper 0.7976 0.7726
+## lower 0.6958 0.6135
 </code></pre>
 
 <p>For more information see <code>?survAM.estimate</code>. </p>
 
-<h3> Validation of R package</h3>
-<p> To validate the accuracy of estimates produced by the package, we ran several simulations under many different scenarios. Results for a single example, where <em>AUC = 0.75</em> is shown below. 1,000 cohort data sets were simulated from a proportional hazards model with sample size <em>n = 1,000</em> and <em>70%</em> censoring. Mean estimates for summary measures and SE are shown below, which can be compared to the true measure values and the empirical SE, respectively.</p>
-<!-- html table generated in R 3.0.2 by xtable 1.7-1 package -->
-<!-- Tue Oct 15 15:25:37 2013 -->
-<TABLE border=1>
-<TR> <TH>  </TH> <TH> True Value </TH> <TH> Mean(Est.) </TH> <TH> Emp. SE </TH> <TH> Mean(Est. SE) </TH>  </TR>
-  <TR> <TD> β </TD> <TD align="right"> 0.879 </TD> <TD align="right"> 0.880 </TD> <TD align="right"> 0.064 </TD> <TD align="right"> 0.064 </TD> </TR>
-  <TR> <TD> AUC </TD> <TD align="right"> 0.750 </TD> <TD align="right"> 0.749 </TD> <TD align="right"> 0.015 </TD> <TD align="right"> 0.015 </TD> </TR>
-  <TR> <TD> TPR(0) </TD> <TD align="right"> 0.770 </TD> <TD align="right"> 0.769 </TD> <TD align="right"> 0.020 </TD> <TD align="right"> 0.020 </TD> </TR>
-  <TR> <TD> FPR(0) </TD> <TD align="right"> 0.420 </TD> <TD align="right"> 0.420 </TD> <TD align="right"> 0.016 </TD> <TD align="right"> 0.017 </TD> </TR>
-  <TR> <TD> PPV(0) </TD> <TD align="right"> 0.350 </TD> <TD align="right"> 0.350 </TD> <TD align="right"> 0.021 </TD> <TD align="right"> 0.021 </TD> </TR>
-  <TR> <TD> NPV(0) </TD> <TD align="right"> 0.900 </TD> <TD align="right"> 0.895 </TD> <TD align="right"> 0.010 </TD> <TD align="right"> 0.011 </TD> </TR>
-   </TABLE>
+<h3>Validation of R package</h3>
 
-<h3>
-<a name="references" class="anchor" href="#references"><span class="octicon octicon-link"></span></a>References</h3>
+<p>To validate the accuracy of estimates produced by the package, we ran several simulations under many different scenarios. Results for a single example for semi-parametric estimates (nonparametric estimates will be added soon), where <em>AUC = 0.75</em> is shown below. 1,000 cohort data sets were simulated from a proportional hazards model with sample size <em>n = 1,000</em> and <em>70%</em> censoring. Mean estimates for summary measures and SE are shown below, which can be compared to the true measure values and the empirical SE, respectively.</p>
+
+<table><thead>
+<tr>
+<th></th>
+<th>True Value</th>
+<th>Mean(Est.)</th>
+<th>Emp. SE</th>
+<th>Mean(Est. SE)</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>ß</td>
+<td>0.879</td>
+<td>0.880</td>
+<td>0.064</td>
+<td>0.064</td>
+</tr>
+<tr>
+<td>AUC</td>
+<td>0.750</td>
+<td>0.749</td>
+<td>0.015</td>
+<td>0.015</td>
+</tr>
+<tr>
+<td>TPR(0)</td>
+<td>0.770</td>
+<td>0.769</td>
+<td>0.020</td>
+<td>0.020</td>
+</tr>
+<tr>
+<td>FPR(0)</td>
+<td>0.420</td>
+<td>0.420</td>
+<td>0.016</td>
+<td>0.017</td>
+</tr>
+<tr>
+<td>PPV(0)</td>
+<td>0.350</td>
+<td>0.350</td>
+<td>0.021</td>
+<td>0.021</td>
+</tr>
+<tr>
+<td>NPV(0)</td>
+<td>0.900</td>
+<td>0.895</td>
+<td>0.010</td>
+<td>0.011</td>
+</tr>
+</tbody></table>
+
+<h3>References</h3>
+
+<p>Liu D, Cai T, Zheng Y. Evaluating the predictive value of biomarkers with stratified case-cohort design. <em>Biometrics</em> 2012, 4: 1219-1227.</p>
 
 <p>Pepe MS, Zheng Y, Jin Y. Evaluating the ROC performance of markers for future events. <em>Lifetime Data Analysis.</em> 2008, 14: 86-113.</p>
 
