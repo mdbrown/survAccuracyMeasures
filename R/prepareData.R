@@ -5,6 +5,9 @@ prepareDataSP <- function(time, event, marker){
   outData <- as.data.frame(cbind(time, event, marker, 1)) # add vector of 1s for sample weights used later
 
   names(outData) <- c("xi", "di", "Y", "wi")
+  completeCases <- complete.cases(outData)
+  if(sum(completeCases) < nrow(outData)) warning(paste("NA's present, only complete cases will be used. New sample size is:", sum(completeCases)) )
+  outData <- outData[complete.cases(outData), ]
   
   outData
   
@@ -17,12 +20,16 @@ prepareDataNP <- function(time, event, marker){
   #calculate censoring weights
   psi = rep(0, N)
   for( eventID in unique(event)){
-     psi[event==eventID] <- sum(event==eventID)/N
+     psi[is.element(event, eventID)] <- sum(is.element(event, eventID))/N
   }
   
   outData <- data.frame(cbind(time, event, marker, 1, 0, event+1, psi, 1))  
   names(outData) = c("xi","di","yi","vi","zi","si","psi", "wi")
   
+  completeCases <- complete.cases(outData)
+  if(sum(completeCases) < nrow(outData)) warning(paste("NA's present, only complete cases will be used. New sample size is:", sum(completeCases)) )
+  outData <- outData[complete.cases(outData), ]
+
   outData
   
 }

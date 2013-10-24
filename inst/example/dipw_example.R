@@ -50,12 +50,11 @@ EstROC.DIPW.NP.FUN(SimData,u0=SE0,type="TPR",c0=0,rtn="ALL")
 data(SimData)
 
 
-survAM.estimateNEW(time  = SimData$survTime, 
+survAM.estimate(time  = SimData$survTime, 
                    event = SimData$status, 
                    marker = SimData$Y, 
-                   ESTmethod = "SP",
-                   SEmethod = "bootstrap",
-                   bootstraps = 50, 
+                   ESTmethod = "NP",
+                   SEmethod = "normal",
                    predict.time = 1, cutpoint=0 )
 
 
