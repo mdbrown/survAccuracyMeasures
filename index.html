@@ -97,8 +97,13 @@ head(SimData)
 <pre><code class="r"># Estimate all the measures at future time 2, with a marker cutpoint at 0.
 
 # non-parametric estimates
-survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimData$Y, 
-    ESTmethod = &quot;NP&quot;, predict.time = 1, cutpoint = 0, SEmethod = &quot;normal&quot;)
+survAM.estimate(time = SimData$survTime, 
+                event = SimData$status, 
+                marker = SimData$Y, 
+                ESTmethod = &quot;NP&quot;, 
+                predict.time = 1, 
+                cutpoint = 0, 
+                SEmethod = &quot;normal&quot;)
 </code></pre>
 
 <pre><code>## 
@@ -118,8 +123,13 @@ survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimDat
 <p>Alternatively, we can calculate semi-parametric estimates based on a proportional hazards model:</p>
 
 <pre><code class="r"># semi-parametric estimates assuming a cox model
-survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimData$Y, 
-    ESTmethod = &quot;SP&quot;, predict.time = 1, cutpoint = 0, SEmethod = &quot;normal&quot;)
+survAM.estimate(time = SimData$survTime, 
+                event = SimData$status, 
+                marker = SimData$Y, 
+                ESTmethod = &quot;SP&quot;, 
+                predict.time = 1, 
+                cutpoint = 0, 
+                SEmethod = &quot;normal&quot;)
 </code></pre>
 
 <pre><code>## 
@@ -139,9 +149,15 @@ survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimDat
 
 <p>Only estimate the \( AUC \) and \( TPR(0) \). This time use bootstrapping to obtain the standard errors. </p>
 
-<pre><code class="r">tmp &lt;- survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimData$Y, 
-    predict.time = 2, measures = c(&quot;AUC&quot;, &quot;TPR&quot;), SEmethod = &quot;bootstrap&quot;, bootstraps = 50, 
-    cutpoint = 0)
+<pre><code class="r">
+tmp &lt;- survAM.estimate(time = SimData$survTime, 
+                          event = SimData$status,
+                          marker = SimData$Y, 
+                          predict.time = 2, 
+                          measures = c(&quot;AUC&quot;, &quot;TPR&quot;), 
+                          SEmethod = &quot;bootstrap&quot;, 
+                          bootstraps = 50, 
+                          cutpoint = 0)
 tmp
 </code></pre>
 
