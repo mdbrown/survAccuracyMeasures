@@ -126,12 +126,13 @@ EstROC.DIPW.NP.FUN <- function(data0,u0,type,c0=NULL,rtn="EST")
 
 
 
-Phi.C.new.FUN<-function(xk,dk,Ti, Di)
+Phi.C.new.FUN<-function(xk,dk,Ti, Di, t0)
 {
    #xk=xi; #dk=data[,7]; 
+   
    tt=pmin(xk,t0); 
    TT=sort(unique(pmin(Ti[Di==0], t0)));
-   nk=length(xk); NN=length(Ti)
+   nk=length(xk); N=length(Ti)
    junk=summary(survfit(Surv(Ti,1-Di)~1, se.fit=F, type='fl'), TT)
    pi=junk$n.risk/N
    dLambda=junk$n.event/junk$n.risk
@@ -235,7 +236,7 @@ P0HAT.cch.z.FUN.type2<-function(data) {
 ##----------------------------------------------------------------------------------------------##
 
 
-WGT.FUN <- function(newdata, data,w.ptb=NULL)
+WGT.FUN <- function(newdata, data, w.ptb=NULL, t0)
 {
   ## ====================================##
   ## KM Estimator of Censoring Survival  ##
@@ -265,6 +266,7 @@ Kern.FUN <- function(zz,zi,bw,kern0="gauss") ## returns an (n x nz) matrix ##
 
 dACC.FUN <- function(u0, uu=SE.yy, A.u = Sp.yy, bw=NULL)
 {
+  bw.power = 0.3
   data = cbind(uu,A.u); data=na.omit(data); data = data[rowSums(abs(data))<Inf,]
   uu=data[,1]; A.u=data[,2]; n.u = length(uu)
   A.u = A.u[order(uu)]; uu = sort(uu)

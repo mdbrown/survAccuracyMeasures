@@ -44,4 +44,23 @@ SimData$wi = 1
 subcohort = FALSE
 EstROC.DIPW.NP.FUN(SimData,u0=SE0,type="TPR",c0=0,rtn="ALL")
 
-survAM.estimate(time  = SimData$xi, event=SimData$di, marker = SimData$yi, predict.time = 1, cutpoint=0 )
+
+##
+
+data(SimData)
+
+
+survAM.estimateNEW(time  = SimData$survTime, 
+                   event = SimData$status, 
+                   marker = SimData$Y, 
+                   ESTmethod = "SP",
+                   SEmethod = "bootstrap",
+                   bootstraps = 50, 
+                   predict.time = 1, cutpoint=0 )
+
+
+
+
+
+
+

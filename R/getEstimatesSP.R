@@ -98,7 +98,7 @@ getEstimatesSP <- function(data,
   
   
   if("AUC" %in% measures) est = c(betahat, AUC, RTvp.out )  else est = c(betahat, RTvp.out)
-  
+  est <- data.frame(est); names(est) = c("coef", measures)
   
   if (CalVar)  {
 
@@ -109,9 +109,12 @@ getEstimatesSP <- function(data,
     Wexp = data.frame(cbind(jjunk$Wexp.beta,jjunk$Wexp.AUC,jjunk$Wexp.vp))
     
     se = sqrt(Est.Var.CCH.trueweights(N,Wexp,subdata,subdata$status, subcohort))  
-    list(estimates = unlist(est),se =se, fit = fit) 
+    
+    se <- data.frame(t(se))
+    names(se) = c("coef", measures)
+    list(estimates = est, se = se, fit = fit) 
       
 		
-  } else {list(estimates = unlist(est), fit = fit)}
+  } else {list(estimates = data.frame(est), fit = fit)}
 }
 
