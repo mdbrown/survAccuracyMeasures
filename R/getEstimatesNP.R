@@ -4,7 +4,7 @@ getEstimatesNP <- function(data,
                          cutpoint,  
                          measures,
                          predict.time,
-                         CalVar = TRUE, cutoffN = 100, subcohort=FALSE)
+                         CalVar = TRUE, subcohort=FALSE)
 {
   
   
@@ -78,7 +78,7 @@ getEstimatesNP <- function(data,
     U.AUC = (xk<=t0)/(1-St0)*(1-FPR.ck-AUC)+(xk>t0)/St0*(TPR.ck-AUC)
     
     Wexp.np.AUC = CWk*U.AUC+Phi%*%(wgtk*CWk*U.AUC)/sum(wgtk)
-    se.auc = sqrt(Est.Var.CCH.trueweights(N,Wexp.np.AUC,data,data$si, subcohort=TRUE))
+    se.auc = sqrt(Est.Var.CCH.trueweights(N,Wexp.np.AUC,data,data$si, subcohort=FALSE))
     se.u0 = NULL
 
     se.c0 = NULL
