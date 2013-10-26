@@ -30,7 +30,10 @@
   cutpoint 'c' at which to estimate 'FPR', 'TPR', 'NPV' or
   'PPV'. default is \code{median(marker)}.}
   
-  \item{ESTmethod}{ Either "NP" (for 'Non-Parametric', this is the default) or "SP" (for 'Semi-Parametric') to indicate which method of estimation to use. Non-paramteric estimates are computed using double inverse probability weighting, and semi-parametric estimates assume a proportional hazards model. 
+  \item{ESTmethod}{ Either "NP" (for 'Non-Parametric', this is the default) or 
+  "SP" (for 'Semi-Parametric') to indicate which method of estimation to use. 
+  Non-parametric estimates are computed using double inverse probability weighting,
+  and semi-parametric estimates assume a proportional hazards model. 
   }
 
   \item{CImethod}{character string of either
