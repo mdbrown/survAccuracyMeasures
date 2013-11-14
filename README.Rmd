@@ -1,7 +1,7 @@
 survAccuracyMeasures
 =============================================
 
-This R package computes non-parametric and semi-parametric estimates of accuracy measures for risk prediction markers from survival data. It consists of the function `survAM.estimate` which estimates the *AUC*, *TPR( c )*, *FPR( c )*, *PPV( c )*, and *NPV( c )* for for a specific timepoint and marker cutoff value c. Standard errors, and confidence intervals are also computed. Either analytic or bootstrap standard errors can be computed. 
+This R package computes non-parametric and semi-parametric estimates of accuracy measures for risk prediction markers from survival data. It consists of the function `survAM.estimate` which estimates the *AUC*, *TPR( c )*, *FPR( c )*, *PPV( c )*, and *NPV( c )* for for a specific timepoint and marker cutoff value c. Standard errors, and confidence intervals are also computed. Bootstrap standard errors are also computed. 
 
 For detailed information regarding estimation methods, see references below. 
 
@@ -26,7 +26,7 @@ head(SimData)
 ```
 
 
-Estimate all measures, using asymptotic normality to estimate standard errors. First we obtain non-parametric estimates using double inverse probablity weighting:
+Estimate all measures, using the bootstrap to estimate standard errors. First we obtain non-parametric estimates using double inverse probablity weighting:
 
 ```{r}
 #Estimate all the measures at future time 2, with a marker cutpoint at 0. 
@@ -37,7 +37,8 @@ survAM.estimate(time =SimData$survTime,
                 marker = SimData$Y,
                 ESTmethod = "NP",
                 predict.time = 1, 
-                 cutpoint = 0, SEmethod = "normal")
+                 cutpoint = 0, 
+                bootstraps = 50)
 ```
 
 Alternatively, we can calculate semi-parametric estimates based on a proportional hazards model:
@@ -50,15 +51,16 @@ survAM.estimate(time =SimData$survTime,
                 marker = SimData$Y,
                 ESTmethod = "SP",
                 predict.time = 1, 
-                 cutpoint = 0, SEmethod = "normal")
+                 cutpoint = 0, 
+                bootstraps = 50)
 ```
 
 
 
-Only estimate the $AUC$ and $TPR(0)$. This time use bootstrapping to obtain the standard errors. 
+Only estimate the $AUC$ and $TPR(0)$. 
 
 ```{r}
-tmp <- survAM.estimate(time =SimData$survTime, event = SimData$status, marker = SimData$Y, predict.time = 2, measures = c("AUC", "TPR"), SEmethod = 'bootstrap', bootstraps = 50, cutpoint = 0)
+tmp <- survAM.estimate(time =SimData$survTime, event = SimData$status, marker = SimData$Y, predict.time = 2, measures = c("AUC", "TPR"), bootstraps = 50, cutpoint = 0)
 tmp
 ```
 
@@ -71,20 +73,6 @@ tmp$CIbounds
 ```
 
 For more information see `?survAM.estimate`. 
-
-### Validation of R package
-To validate the accuracy of estimates produced by the package, we ran several simulations under many different scenarios. Results for a single example for semi-parametric estimates (nonparametric estimates will be added soon), where *AUC = 0.75* is shown below. 1,000 cohort data sets were simulated from a proportional hazards model with sample size *n = 1,000* and *70%* censoring. Mean estimates for summary measures and SE are shown below, which can be compared to the true measure values and the empirical SE, respectively.
-
-
-
-        | True Value | Mean(Est.) | Emp. SE | Mean(Est. SE)
---------|------------|----------|---------|-----------    
-      β |   0.879 |   0.880 | 0.064 |     0.064
-    AUC |   0.750 |   0.749 | 0.015 |     0.015
- TPR(0) |   0.770 |   0.769 | 0.020 |     0.020
- FPR(0) |   0.420 |   0.420 | 0.016 |     0.017
- PPV(0) |   0.350 |   0.350 | 0.021 |     0.021
- NPV(0) |   0.900 |   0.895 | 0.010 |     0.011
 
 
 ### References

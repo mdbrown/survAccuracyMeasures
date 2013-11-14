@@ -1,7 +1,7 @@
 survAccuracyMeasures
 =============================================
 
-This R package computes non-parametric and semi-parametric estimates of accuracy measures for risk prediction markers from survival data. It consists of the function `survAM.estimate` which estimates the *AUC*, *TPR( c )*, *FPR( c )*, *PPV( c )*, and *NPV( c )* for for a specific timepoint and marker cutoff value c. Standard errors, and confidence intervals are also computed. Either analytic or bootstrap standard errors can be computed. 
+This R package computes non-parametric and semi-parametric estimates of accuracy measures for risk prediction markers from survival data. It consists of the function `survAM.estimate` which estimates the *AUC*, *TPR( c )*, *FPR( c )*, *PPV( c )*, and *NPV( c )* for for a specific timepoint and marker cutoff value c. Standard errors, and confidence intervals are also computed. Bootstrap standard errors are also computed. 
 
 For detailed information regarding estimation methods, see references below. 
 
@@ -46,7 +46,7 @@ head(SimData)
 
 
 
-Estimate all measures, using asymptotic normality to estimate standard errors. First we obtain non-parametric estimates using double inverse probablity weighting:
+Estimate all measures, using the bootstrap to estimate standard errors. First we obtain non-parametric estimates using double inverse probablity weighting:
 
 
 ```r
@@ -54,20 +54,20 @@ Estimate all measures, using asymptotic normality to estimate standard errors. F
 
 # non-parametric estimates
 survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimData$Y, 
-    ESTmethod = "NP", predict.time = 1, cutpoint = 0, SEmethod = "normal")
+    ESTmethod = "NP", predict.time = 1, cutpoint = 0, bootstraps = 50)
 ```
 
 ```
 ## 
 ## Non-Parametric estimates of accuracy measures:
-##    (SE's calculated using normal approximation)
+##    (SE's calculated using the bootstrap)
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
-## AUC        0.786     0.031         0.718       0.841 
-## TPR(c)     0.769     0.052         0.652       0.856 
-## FPR(c)     0.410     0.025         0.362       0.461 
-## PPV(c)     0.231     0.030         0.178       0.294 
-## NPV(c)     0.941     0.015         0.904       0.964 
+## AUC        0.786     0.032         0.715       0.842 
+## TPR(c)     0.769     0.050         0.656       0.853 
+## FPR(c)     0.410     0.024         0.365       0.457 
+## PPV(c)     0.231     0.031         0.176       0.296 
+## NPV(c)     0.941     0.015         0.905       0.964 
 ## 
 ##  marker cutpoint: c = 0
 ```
@@ -80,21 +80,21 @@ Alternatively, we can calculate semi-parametric estimates based on a proportiona
 ```r
 # semi-parametric estimates assuming a cox model
 survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimData$Y, 
-    ESTmethod = "SP", predict.time = 1, cutpoint = 0, SEmethod = "normal")
+    ESTmethod = "SP", predict.time = 1, cutpoint = 0, bootstraps = 50)
 ```
 
 ```
 ## 
 ## Semi-Parametric estimates of accuracy measures:
-##    (SE's calculated using normal approximation)
+##    (SE's calculated using the bootstrap)
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
-## coef       1.010     0.085         0.842       1.177 
-## AUC        0.768     0.020         0.727       0.805 
-## TPR(c)     0.788     0.027         0.731       0.836 
-## FPR(c)     0.412     0.023         0.368       0.459 
-## PPV(c)     0.241     0.028         0.191       0.300 
-## NPV(c)     0.943     0.009         0.924       0.958 
+## coef       1.010     0.089         0.836       1.183 
+## AUC        0.768     0.017         0.732       0.801 
+## TPR(c)     0.788     0.028         0.728       0.837 
+## FPR(c)     0.412     0.022         0.370       0.456 
+## PPV(c)     0.241     0.030         0.187       0.305 
+## NPV(c)     0.943     0.010         0.919       0.960 
 ## 
 ##  marker cutpoint: c = 0
 ```
@@ -102,13 +102,12 @@ survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimDat
 
 
 
-Only estimate the $AUC$ and $TPR(0)$. This time use bootstrapping to obtain the standard errors. 
+Only estimate the $AUC$ and $TPR(0)$. 
 
 
 ```r
 tmp <- survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimData$Y, 
-    predict.time = 2, measures = c("AUC", "TPR"), SEmethod = "bootstrap", bootstraps = 50, 
-    cutpoint = 0)
+    predict.time = 2, measures = c("AUC", "TPR"), bootstraps = 50, cutpoint = 0)
 tmp
 ```
 
@@ -118,8 +117,8 @@ tmp
 ##    (SE's calculated using the bootstrap)
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
-## AUC        0.750     0.027         0.694       0.799 
-## TPR(c)     0.699     0.041         0.613       0.773 
+## AUC        0.750     0.028         0.692       0.801 
+## TPR(c)     0.699     0.047         0.600       0.783 
 ## 
 ##  marker cutpoint: c = 0
 ```
@@ -144,26 +143,12 @@ tmp$CIbounds
 
 ```
 ##          AUC    TPR
-## upper 0.7987 0.7729
-## lower 0.6943 0.6131
+## upper 0.8007 0.7826
+## lower 0.6917 0.5996
 ```
 
 
 For more information see `?survAM.estimate`. 
-
-### Validation of R package
-To validate the accuracy of estimates produced by the package, we ran several simulations under many different scenarios. Results for a single example for semi-parametric estimates (nonparametric estimates will be added soon), where *AUC = 0.75* is shown below. 1,000 cohort data sets were simulated from a proportional hazards model with sample size *n = 1,000* and *70%* censoring. Mean estimates for summary measures and SE are shown below, which can be compared to the true measure values and the empirical SE, respectively.
-
-
-
-        | True Value | Mean(Est.) | Emp. SE | Mean(Est. SE)
---------|------------|----------|---------|-----------    
-      ß |   0.879 |   0.880 | 0.064 |     0.064
-    AUC |   0.750 |   0.749 | 0.015 |     0.015
- TPR(0) |   0.770 |   0.769 | 0.020 |     0.020
- FPR(0) |   0.420 |   0.420 | 0.016 |     0.017
- PPV(0) |   0.350 |   0.350 | 0.021 |     0.021
- NPV(0) |   0.900 |   0.895 | 0.010 |     0.011
 
 
 ### References

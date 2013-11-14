@@ -1,9 +1,9 @@
 survAM.estimate <- function(time, event, marker, predict.time, measures = c('all'), 
                    cutpoint = median(marker), ESTmethod = "NP", CImethod = "logit.transformed", 
-                   SEmethod ="normal", bootstraps = 1000, alpha=0.05){
+                    bootstraps = 1000, alpha=0.05){
  
   cutoff.type = "none";
-
+  SEmethod ="bootstrap"
     
   #put checks here
   if(length(cutpoint)==0) cutpoint = NA;  
@@ -88,8 +88,8 @@ survAM.estimate <- function(time, event, marker, predict.time, measures = c('all
                                                         cutpoint = cutpoint,  
                                                         measures = measures,
                                                         predict.time = predict.time,
-                                                        CalVar = FALSE,  
-                                                        cutoffN = N)
+                                                        CalVar = FALSE  
+                                                       )
         #bootstrap ci's
         bootests <- matrix(ncol = length(estRawOutput$est), nrow = bootstraps)
         for( b in 1:bootstraps){   
@@ -98,8 +98,7 @@ survAM.estimate <- function(time, event, marker, predict.time, measures = c('all
                                                           cutpoint = cutpoint,  
                                                           measures = measures,
                                                           predict.time = predict.time,
-                                                          CalVar = FALSE,  
-                                                          cutoffN = N)$est) 
+                                                          CalVar = FALSE)$est) 
         }
  
         estRawOutput$se <- data.frame(t(apply(bootests, 2, sd, na.rm = TRUE)))

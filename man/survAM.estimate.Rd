@@ -6,7 +6,6 @@
     measures = c("all"), cutpoint = median(marker),
     ESTmethod = "NP",
     CImethod = "logit.transformed", 
-    SEmethod = "normal",
     bootstraps = 1000, alpha = 0.05)
 }
 \arguments{
@@ -42,11 +41,8 @@
   be calculated using logistic transformed values or the
   standard method.}
 
-  \item{SEmethod}{character string of either
-  'normal'(default) or 'boostrap' indicating whether
-  standard errors should be calculated analytically or via
-  the bootstrap. The method to calculate the SE
-  analytically is described in the paper referenced below.}
+  \item{SEmethod}{ Not functional as of now. Analytic SE will 
+   be added soon, but for now only bootstrap SE's can be calculated.}
 
   \item{bootstraps}{if SEmethod = 'bootstrap', number of
   bootstrap replicates to use to estimate the SE.}
