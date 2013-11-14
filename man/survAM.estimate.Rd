@@ -77,7 +77,8 @@ tmp <- survEstMeasures(time =SimData$survTime,
                        marker = SimData$Y, 
                        ESTmethod = "NP"
                        predict.time = 2, 
-                       cutpoint = 0)
+                       cutpoint = 0, 
+                       bootstraps = 50)
 tmp
 tmp$estimates
 
@@ -87,9 +88,10 @@ survEstMeasures(time =SimData$survTime,
                        marker = SimData$Y, 
                        ESTmethod = "SP"
                        predict.time = 2, 
-                       cutpoint = 0)
+                       cutpoint = 0, 
+                       bootstraps = 50)
 
-#estimate AUC and TPR(0) using the bootstrap to obtain SE's
+#estimate AUC and TPR(0) only
 survEstMeasures(time =SimData$survTime, 
                 event = SimData$status, 
                 marker = SimData$Y, 
