@@ -1,7 +1,7 @@
 survAccuracyMeasures
 =============================================
 
-This R package computes non-parametric and semi-parametric estimates of accuracy measures for risk prediction markers from survival data. It consists of the function `survAM.estimate` which estimates the *AUC*, *TPR( c )*, *FPR( c )*, *PPV( c )*, and *NPV( c )* for for a specific timepoint and marker cutoff value c. Standard errors, and confidence intervals are also computed. Bootstrap standard errors are also computed. 
+This R package computes non-parametric and semi-parametric estimates of accuracy measures for risk prediction markers from survival data. It consists of the function `survAM.estimate` which estimates the *AUC*, *TPR( c )*, *FPR( c )*, *PPV( c )*, and *NPV( c )* for for a specific timepoint and marker cutoff value c. Bootstrap standard errors, and confidence intervals are also computed. 
 
 For detailed information regarding estimation methods, see references below. 
 
@@ -63,11 +63,11 @@ survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimDat
 ##    (SE's calculated using the bootstrap)
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
-## AUC        0.786     0.026         0.730       0.832 
-## TPR(c)     0.769     0.051         0.655       0.854 
-## FPR(c)     0.410     0.025         0.362       0.460 
-## PPV(c)     0.231     0.028         0.181       0.290 
-## NPV(c)     0.941     0.015         0.904       0.964 
+## AUC        0.786     0.026         0.730       0.833 
+## TPR(c)     0.769     0.047         0.665       0.848 
+## FPR(c)     0.410     0.029         0.356       0.467 
+## PPV(c)     0.231     0.035         0.169       0.306 
+## NPV(c)     0.941     0.014         0.908       0.963 
 ## 
 ##  marker cutpoint: c = 0
 ```
@@ -89,12 +89,12 @@ survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimDat
 ##    (SE's calculated using the bootstrap)
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
-## coef       1.010     0.081         0.852       1.168 
-## AUC        0.768     0.018         0.731       0.802 
+## coef       1.010     0.077         0.859       1.161 
+## AUC        0.768     0.020         0.728       0.805 
 ## TPR(c)     0.788     0.026         0.732       0.835 
-## FPR(c)     0.412     0.022         0.370       0.456 
-## PPV(c)     0.241     0.030         0.187       0.305 
-## NPV(c)     0.943     0.007         0.927       0.956 
+## FPR(c)     0.412     0.028         0.359       0.468 
+## PPV(c)     0.241     0.025         0.196       0.294 
+## NPV(c)     0.943     0.007         0.928       0.955 
 ## 
 ##  marker cutpoint: c = 0
 ```
@@ -117,8 +117,8 @@ tmp
 ##    (SE's calculated using the bootstrap)
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
-## AUC        0.750     0.028         0.691       0.801 
-## TPR(c)     0.699     0.048         0.597       0.785 
+## AUC        0.750     0.027         0.693       0.800 
+## TPR(c)     0.699     0.050         0.593       0.787 
 ## 
 ##  marker cutpoint: c = 0
 ```
@@ -143,8 +143,8 @@ tmp$CIbounds
 
 ```
 ##          AUC    TPR
-## upper 0.8013 0.7847
-## lower 0.6909 0.5968
+## upper 0.7996 0.7874
+## lower 0.6932 0.5929
 ```
 
 
