@@ -231,11 +231,11 @@ survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimDat
 ##    (SE&#39;s calculated using the bootstrap)
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
-## AUC        0.786     0.032         0.715       0.842 
-## TPR(c)     0.769     0.050         0.656       0.853 
-## FPR(c)     0.410     0.024         0.365       0.457 
-## PPV(c)     0.231     0.031         0.176       0.296 
-## NPV(c)     0.941     0.015         0.905       0.964 
+## AUC        0.786     0.026         0.730       0.832 
+## TPR(c)     0.769     0.051         0.655       0.854 
+## FPR(c)     0.410     0.025         0.362       0.460 
+## PPV(c)     0.231     0.028         0.181       0.290 
+## NPV(c)     0.941     0.015         0.904       0.964 
 ## 
 ##  marker cutpoint: c = 0
 </code></pre>
@@ -252,12 +252,12 @@ survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimDat
 ##    (SE&#39;s calculated using the bootstrap)
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
-## coef       1.010     0.089         0.836       1.183 
-## AUC        0.768     0.017         0.732       0.801 
-## TPR(c)     0.788     0.028         0.728       0.837 
+## coef       1.010     0.081         0.852       1.168 
+## AUC        0.768     0.018         0.731       0.802 
+## TPR(c)     0.788     0.026         0.732       0.835 
 ## FPR(c)     0.412     0.022         0.370       0.456 
 ## PPV(c)     0.241     0.030         0.187       0.305 
-## NPV(c)     0.943     0.010         0.919       0.960 
+## NPV(c)     0.943     0.007         0.927       0.956 
 ## 
 ##  marker cutpoint: c = 0
 </code></pre>
@@ -274,8 +274,8 @@ tmp
 ##    (SE&#39;s calculated using the bootstrap)
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
-## AUC        0.750     0.028         0.692       0.801 
-## TPR(c)     0.699     0.047         0.600       0.783 
+## AUC        0.750     0.028         0.691       0.801 
+## TPR(c)     0.699     0.048         0.597       0.785 
 ## 
 ##  marker cutpoint: c = 0
 </code></pre>
@@ -294,8 +294,8 @@ tmp$CIbounds
 </code></pre>
 
 <pre><code>##          AUC    TPR
-## upper 0.8007 0.7826
-## lower 0.6917 0.5996
+## upper 0.8013 0.7847
+## lower 0.6909 0.5968
 </code></pre>
 
 <p>For more information see <code>?survAM.estimate</code>. </p>
