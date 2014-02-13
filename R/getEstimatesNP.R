@@ -46,7 +46,9 @@ getEstimatesNP <- function(data,
   
 
   if(!is.null(c0)){
-    tmpind.c0 = sum.I(c0, ">=", ck); acc.c0 = acc.ck[tmpind.c0,]; F.c0 = Fck[tmpind.c0]
+    tmpind.c0 = sum.I(c0, ">=", ck); 
+    acc.c0 = acc.ck[tmpind.c0,]; 
+    F.c0 = Fck[tmpind.c0]
   }else{ acc.c0 = acc.ck }
   est= data.frame("AUC" = AUC, acc.c0[-1])
 
