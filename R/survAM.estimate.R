@@ -1,28 +1,36 @@
-survAM.estimate <- function(time, event, marker, predict.time, measures = c('all'), 
-                   cutpoint = median(marker), ESTmethod = "NP", CImethod = "logit.transformed", 
-                    bootstraps = 1000, alpha=0.05){
- 
+survAM.estimate <- function(time, event, marker,
+                             data, 
+                             predict.time,  
+                             marker.cutpoint = 'median', 
+                             estimation.method = "NP", 
+                             ci.method = "logit.transformed", 
+                             bootstraps = 1000, 
+                             alpha=0.05){
+
+  # checks
+  stopifnot(is.data.frame(data))
+  
+  time <- eval(substitute(time), data)
+  event <- 1*eval(substitute(event), data)
+  marker <- eval(substitute(marker), data)
+
+  stopifnot(is.element(estimation.method, c("NP", "SP")))
+  stopifnot(is.numeric(predict.time))
+  if(marker.cutpoint=='median') marker.cutpoint =  median(eval(substitute(marker), data))
+  stopifnot(is.numeric(marker.cutpoint))
+  
+  #set some defaults
+  measures = c('all')
+  cutoff <- marker.cutpoint
+  cutpoint <- marker.cutpoint
   cutoff.type = "none";
   SEmethod ="bootstrap"
-    
-  #put checks here
-  if(length(cutpoint)==0) cutpoint = NA;  
-  
-  #CImethod is either "standard" or "logit.transformed" 
-  if(!is.element(substr(CImethod, 1,4), c("stan", "logi"))) stop("CImethod must be either 'standard' or 'logit.transformed'")
-
-  #SEmethod is either "normal" or "boostrap"
-  if(!is.element(substr(SEmethod, 1,4), c("norm", "boot"))) stop("SEmethod must be either 'normal' or 'bootstrap'")
-  
   if(is.element("all", measures)) measures <- c("AUC","TPR", "FPR", "PPV", "NPV")
   
-  #make sure we have a cutpoint if the measures call for it
-  if(any(c("TPR", "FPR", "PPV", "NPV") %in% measures) & is.na(cutpoint)) stop("'cutpoint' must be set in order to calculate 'FPR', 'TPR', 'PPV, 'NPV'")
-  N <- dim(time)[1]; if(is.null(N)) N = length(time)
   
-  if(!all.equal(c(length(time), length(event), length(marker)), rep(N, 3))) stop("time, event and marker must be numeric vectors of equal length")
-  
-  #end of checks
+  ESTmethod = estimation.method
+  CImethod = ci.method
+  N = nrow(data)
   
   
   ## get estimates via getEstimates, also calculate the bootstrap se if necessary
