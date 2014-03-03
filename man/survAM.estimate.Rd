@@ -2,46 +2,47 @@
 \alias{survAM.estimate}
 \title{ Nonparametric and Semiparametric estimates of accuracy measures for a risk prediction marker from survival data}
 \usage{
-  survAM.estimate(time, event, marker, predict.time,
-    measures = c("all"), cutpoint = median(marker),
-    ESTmethod = "NP",
-    CImethod = "logit.transformed", 
-    bootstraps = 1000, alpha = 0.05)
+  survAM.estimate(time, event, marker,
+                             data, 
+                             predict.time,  
+                             marker.cutpoint = 'median', 
+                             estimation.method = "NP", 
+                             ci.method = "logit.transformed", 
+                             bootstraps = 1000, 
+                             alpha=0.05)
 }
 \arguments{
-  \item{time}{numeric vector, time to event variable}
+  \item{time}{time to event variable}
 
-  \item{event}{numeric vector, indicator for the status of
+  \item{event}{indicator for the status of
   event of interest. event = 0 for censored observations,
   and event = 1 for event of interest.}
 
-  \item{marker}{numeric vector, marker variable of
+  \item{marker}{marker variable of
   interest}
+  
+  \item{data}{data frame in which to look for input variables. }
   
   \item{predict.time}{numeric value of the timepoint of
   interest for which to estimate the risk measures}
 
-  \item{measures}{character vector that can contain the
-  following 'AUC', 'TPR', 'FPR', 'PPV', 'NPV' or 'all'
-  (default).}
-
-  \item{cutpoint}{numeric value indicating the value of the
+  \item{marker.cutpoint}{numeric value indicating the value of the
   cutpoint 'c' at which to estimate 'FPR', 'TPR', 'NPV' or
-  'PPV'. default is \code{median(marker)}.}
+  'PPV'. default is \code{'median'} which takes cutpoint as the marker median.}
   
-  \item{ESTmethod}{ Either "NP" (for 'Non-Parametric', this is the default) or 
+  \item{estimation.method}{ Either "NP" (for 'Non-Parametric', this is the default) or 
   "SP" (for 'Semi-Parametric') to indicate which method of estimation to use. 
   Non-parametric estimates are computed using double inverse probability weighting,
   and semi-parametric estimates assume a proportional hazards model. 
   }
 
-  \item{CImethod}{character string of either
+  \item{ci.method}{character string of either
   'logit.transformed' (default) or 'standard' indicating
   whether normal approximated confidence intervals should
   be calculated using logistic transformed values or the
   standard method.}
 
-  \item{SEmethod}{ Not functional as of now. Analytic SE will 
+  \item{SEmethod}{ Not functional. Analytic SE will 
    be added soon, but for now only bootstrap SE's can be calculated.}
 
   \item{bootstraps}{if SEmethod = 'bootstrap', number of
@@ -72,9 +73,10 @@
 data(SimData)
 
 #non-parametric estimates
-tmp <- survEstMeasures(time =SimData$survTime, 
-                       event = SimData$status, 
-                       marker = SimData$Y, 
+tmp <- survEstMeasures(time =survTime, 
+                       event = status, 
+                       marker = Y,
+                       data = SimData,
                        ESTmethod = "NP"
                        predict.time = 2, 
                        cutpoint = 0, 
@@ -83,28 +85,14 @@ tmp
 tmp$estimates
 
 #semi-parametric estimates
-survEstMeasures(time =SimData$survTime, 
-                       event = SimData$status, 
-                       marker = SimData$Y, 
+tmp <- survEstMeasures(time =survTime, 
+                       event = status, 
+                       marker = Y,
+                       data = SimData,
                        ESTmethod = "SP"
                        predict.time = 2, 
                        cutpoint = 0, 
                        bootstraps = 50)
-
-#estimate AUC and TPR(0) only
-survEstMeasures(time =SimData$survTime, 
-                event = SimData$status, 
-                marker = SimData$Y, 
-                predict.time = 2, 
-                measures = c("AUC", "TPR"), 
-                ESTmethod = "SP", 
-                SEmethod = 'bootstrap', 
-                bootstraps = 50, 
-                cutpoint = 0)
-
-
-
-
 
 }
 \references{
