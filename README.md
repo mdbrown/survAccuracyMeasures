@@ -24,7 +24,8 @@ library(survAccuracyMeasures)
 ```
 
 ```
-## Loading required package: survival Loading required package: splines
+## Loading required package: survival
+## Loading required package: splines
 ```
 
 ```r
@@ -53,8 +54,8 @@ Estimate all measures, using the bootstrap to estimate standard errors. First we
 # Estimate all the measures at future time 2, with a marker cutpoint at 0.
 
 # non-parametric estimates
-survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimData$Y, 
-    ESTmethod = "NP", predict.time = 1, cutpoint = 0, bootstraps = 50)
+survAM.estimate(time = survTime, event = status, marker = Y, data = SimData, 
+    estimation.method = "NP", predict.time = 1, marker.cutpoint = 0, bootstraps = 50)
 ```
 
 ```
@@ -63,11 +64,11 @@ survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimDat
 ##    (SE's calculated using the bootstrap)
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
-## AUC        0.786     0.026         0.730       0.833 
-## TPR(c)     0.769     0.047         0.665       0.848 
-## FPR(c)     0.410     0.029         0.356       0.467 
-## PPV(c)     0.231     0.035         0.169       0.306 
-## NPV(c)     0.941     0.014         0.908       0.963 
+## AUC        0.786     0.028         0.725       0.836 
+## TPR(c)     0.769     0.043         0.674       0.843 
+## FPR(c)     0.410     0.025         0.362       0.461 
+## PPV(c)     0.231     0.030         0.177       0.296 
+## NPV(c)     0.941     0.012         0.912       0.961 
 ## 
 ##  marker cutpoint: c = 0
 ```
@@ -79,8 +80,8 @@ Alternatively, we can calculate semi-parametric estimates based on a proportiona
 
 ```r
 # semi-parametric estimates assuming a cox model
-survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimData$Y, 
-    ESTmethod = "SP", predict.time = 1, cutpoint = 0, bootstraps = 50)
+survAM.estimate(time = survTime, event = status, marker = Y, data = SimData, 
+    estimation.method = "SP", predict.time = 1, marker.cutpoint = 0, bootstraps = 50)
 ```
 
 ```
@@ -89,11 +90,11 @@ survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimDat
 ##    (SE's calculated using the bootstrap)
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
-## coef       1.010     0.077         0.859       1.161 
-## AUC        0.768     0.020         0.728       0.805 
-## TPR(c)     0.788     0.026         0.732       0.835 
-## FPR(c)     0.412     0.028         0.359       0.468 
-## PPV(c)     0.241     0.025         0.196       0.294 
+## coef       1.010     0.100         0.814       1.205 
+## AUC        0.768     0.024         0.718       0.813 
+## TPR(c)     0.788     0.028         0.729       0.837 
+## FPR(c)     0.412     0.023         0.369       0.457 
+## PPV(c)     0.241     0.031         0.186       0.306 
 ## NPV(c)     0.943     0.007         0.928       0.955 
 ## 
 ##  marker cutpoint: c = 0
@@ -101,51 +102,6 @@ survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimDat
 
 
 
-
-Only estimate the $AUC$ and $TPR(0)$. 
-
-
-```r
-tmp <- survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimData$Y, 
-    predict.time = 2, measures = c("AUC", "TPR"), bootstraps = 50, cutpoint = 0)
-tmp
-```
-
-```
-## 
-## Non-Parametric estimates of accuracy measures:
-##    (SE's calculated using the bootstrap)
-## 
-##         estimate     se      lower 0.95  upper 0.95
-## AUC        0.750     0.027         0.693       0.800 
-## TPR(c)     0.699     0.050         0.593       0.787 
-## 
-##  marker cutpoint: c = 0
-```
-
-
-
-```r
-# access the estimates
-tmp$estimates
-```
-
-```
-##        AUC   TPR
-## 266 0.7501 0.699
-```
-
-```r
-
-# and the confidence bounds
-tmp$CIbounds
-```
-
-```
-##          AUC    TPR
-## upper 0.7996 0.7874
-## lower 0.6932 0.5929
-```
 
 
 For more information see `?survAM.estimate`. 

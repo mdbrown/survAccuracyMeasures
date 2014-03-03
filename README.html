@@ -174,10 +174,6 @@ hljs.initHighlightingOnLoad();
 </script>
 
 
-<!-- MathJax scripts -->
-<script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
 
 
 </head>
@@ -199,7 +195,8 @@ devtools::install_github(&quot;survMarkerTwoPhase&quot;, &quot;mdbrown&quot;)
 <pre><code class="r">library(survAccuracyMeasures)
 </code></pre>
 
-<pre><code>## Loading required package: survival Loading required package: splines
+<pre><code>## Loading required package: survival
+## Loading required package: splines
 </code></pre>
 
 <pre><code class="r">
@@ -222,8 +219,8 @@ head(SimData)
 <pre><code class="r"># Estimate all the measures at future time 2, with a marker cutpoint at 0.
 
 # non-parametric estimates
-survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimData$Y, 
-    ESTmethod = &quot;NP&quot;, predict.time = 1, cutpoint = 0, bootstraps = 50)
+survAM.estimate(time = survTime, event = status, marker = Y, data = SimData, 
+    estimation.method = &quot;NP&quot;, predict.time = 1, marker.cutpoint = 0, bootstraps = 50)
 </code></pre>
 
 <pre><code>## 
@@ -231,11 +228,11 @@ survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimDat
 ##    (SE&#39;s calculated using the bootstrap)
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
-## AUC        0.786     0.026         0.730       0.833 
-## TPR(c)     0.769     0.047         0.665       0.848 
-## FPR(c)     0.410     0.029         0.356       0.467 
-## PPV(c)     0.231     0.035         0.169       0.306 
-## NPV(c)     0.941     0.014         0.908       0.963 
+## AUC        0.786     0.028         0.725       0.836 
+## TPR(c)     0.769     0.043         0.674       0.843 
+## FPR(c)     0.410     0.025         0.362       0.461 
+## PPV(c)     0.231     0.030         0.177       0.296 
+## NPV(c)     0.941     0.012         0.912       0.961 
 ## 
 ##  marker cutpoint: c = 0
 </code></pre>
@@ -243,8 +240,8 @@ survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimDat
 <p>Alternatively, we can calculate semi-parametric estimates based on a proportional hazards model:</p>
 
 <pre><code class="r"># semi-parametric estimates assuming a cox model
-survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimData$Y, 
-    ESTmethod = &quot;SP&quot;, predict.time = 1, cutpoint = 0, bootstraps = 50)
+survAM.estimate(time = survTime, event = status, marker = Y, data = SimData, 
+    estimation.method = &quot;SP&quot;, predict.time = 1, marker.cutpoint = 0, bootstraps = 50)
 </code></pre>
 
 <pre><code>## 
@@ -252,50 +249,14 @@ survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimDat
 ##    (SE&#39;s calculated using the bootstrap)
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
-## coef       1.010     0.077         0.859       1.161 
-## AUC        0.768     0.020         0.728       0.805 
-## TPR(c)     0.788     0.026         0.732       0.835 
-## FPR(c)     0.412     0.028         0.359       0.468 
-## PPV(c)     0.241     0.025         0.196       0.294 
+## coef       1.010     0.100         0.814       1.205 
+## AUC        0.768     0.024         0.718       0.813 
+## TPR(c)     0.788     0.028         0.729       0.837 
+## FPR(c)     0.412     0.023         0.369       0.457 
+## PPV(c)     0.241     0.031         0.186       0.306 
 ## NPV(c)     0.943     0.007         0.928       0.955 
 ## 
 ##  marker cutpoint: c = 0
-</code></pre>
-
-<p>Only estimate the \( AUC \) and \( TPR(0) \). </p>
-
-<pre><code class="r">tmp &lt;- survAM.estimate(time = SimData$survTime, event = SimData$status, marker = SimData$Y, 
-    predict.time = 2, measures = c(&quot;AUC&quot;, &quot;TPR&quot;), bootstraps = 50, cutpoint = 0)
-tmp
-</code></pre>
-
-<pre><code>## 
-## Non-Parametric estimates of accuracy measures:
-##    (SE&#39;s calculated using the bootstrap)
-## 
-##         estimate     se      lower 0.95  upper 0.95
-## AUC        0.750     0.027         0.693       0.800 
-## TPR(c)     0.699     0.050         0.593       0.787 
-## 
-##  marker cutpoint: c = 0
-</code></pre>
-
-<pre><code class="r"># access the estimates
-tmp$estimates
-</code></pre>
-
-<pre><code>##        AUC   TPR
-## 266 0.7501 0.699
-</code></pre>
-
-<pre><code class="r">
-# and the confidence bounds
-tmp$CIbounds
-</code></pre>
-
-<pre><code>##          AUC    TPR
-## upper 0.7996 0.7874
-## lower 0.6932 0.5929
 </code></pre>
 
 <p>For more information see <code>?survAM.estimate</code>. </p>

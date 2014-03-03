@@ -47,31 +47,18 @@ Alternatively, we can calculate semi-parametric estimates based on a proportiona
 
 ```{r}
 #semi-parametric estimates assuming a cox model
-survAM.estimate(time =SimData$survTime, 
-                event = SimData$status, 
-                marker = SimData$Y,
-                ESTmethod = "SP",
+survAM.estimate(time =survTime, 
+                event = status, 
+                marker = Y,
+                data = SimData, 
+                estimation.method = "SP",
                 predict.time = 1, 
-                 cutpoint = 0, 
+                marker.cutpoint = 0, 
                 bootstraps = 50)
 ```
 
 
 
-Only estimate the $AUC$ and $TPR(0)$. 
-
-```{r}
-tmp <- survAM.estimate(time =SimData$survTime, event = SimData$status, marker = SimData$Y, predict.time = 2, measures = c("AUC", "TPR"), bootstraps = 50, cutpoint = 0)
-tmp
-```
-
-```{r}
-#access the estimates 
-tmp$estimates
-
-#and the confidence bounds
-tmp$CIbounds
-```
 
 For more information see `?survAM.estimate`. 
 
