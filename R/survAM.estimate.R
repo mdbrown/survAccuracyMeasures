@@ -4,6 +4,7 @@ survAM.estimate <- function(time, event, marker,
                              marker.cutpoint = 'median', 
                              estimation.method = "NP", 
                              ci.method = "logit.transformed", 
+                             se.method = "bootstrap",
                              bootstraps = 1000, 
                              alpha=0.05){
 
@@ -24,15 +25,16 @@ survAM.estimate <- function(time, event, marker,
   cutoff <- marker.cutpoint
   cutpoint <- marker.cutpoint
   cutoff.type = "none";
-  SEmethod ="bootstrap"
+  SEmethod =se.method; 
+  
+  stopifnot(is.element(se.method, c("bootstrap", "analytic")))
   if(is.element("all", measures)) measures <- c("AUC","TPR", "FPR", "PPV", "NPV")
   
   
   ESTmethod = estimation.method
   CImethod = ci.method
   N = nrow(data)
-  
-  
+
   ## get estimates via getEstimates, also calculate the bootstrap se if necessary
   
   #we handle semiparametric and nonparametric estimates differently
@@ -40,14 +42,13 @@ survAM.estimate <- function(time, event, marker,
   
     mydata <- prepareDataSP(time, event, marker)
     
-    if(SEmethod == "normal"){
+    if(SEmethod == "analytic"){
       
       estRawOutput <- getEstimatesSP( data = mydata, 
                                       cutpoint = cutpoint,  
                                       measures = measures,
                                       predict.time = predict.time,
-                                      CalVar = TRUE,  
-                                      cutoffN = N)  
+                                      CalVar = TRUE)  
       
     }else if(substr(SEmethod, 1,4)=="boot"){
       bootstraps = round(bootstraps)
@@ -57,8 +58,7 @@ survAM.estimate <- function(time, event, marker,
                                                      cutpoint = cutpoint,  
                                                      measures = measures,
                                                      predict.time = predict.time,
-                                                     CalVar = FALSE,  
-                                                     cutoffN = N)
+                                                     CalVar = FALSE)
       #bootstrap ci's
       bootests <- matrix(ncol = length(estRawOutput$est), nrow = bootstraps)
       for( b in 1:bootstraps){                  
@@ -66,8 +66,7 @@ survAM.estimate <- function(time, event, marker,
                                                         cutpoint = cutpoint,  
                                                         measures = measures,
                                                         predict.time = predict.time,
-                                                        CalVar = FALSE,  
-                                                        cutoffN = N)$est) 
+                                                        CalVar = FALSE)$est) 
       }
       estRawOutput$se <- data.frame(t(apply(bootests, 2, sd, na.rm = TRUE)))
       names(estRawOutput$se) = names(estRawOutput$estimates)
@@ -79,14 +78,13 @@ survAM.estimate <- function(time, event, marker,
     
     ##no bootstrap
    
-      if(SEmethod == "normal"){
+      if(SEmethod == "analytic"){
         
         estRawOutput <- getEstimatesNP( data = mydata, 
                                         cutpoint = cutpoint,  
                                         measures = measures,
                                         predict.time = predict.time,
-                                        CalVar = TRUE,  
-                                        cutoffN = N)  
+                                        CalVar = TRUE)  
         
       }else if(substr(SEmethod, 1,4)=="boot"){
         bootstraps = round(bootstraps)
@@ -127,9 +125,9 @@ survAM.estimate <- function(time, event, marker,
  
         
   myests$cutpoint = cutpoint; 
-  myests$ESTmethod = ESTmethod; 
-  myests$CImethod = CImethod; 
-  myests$SEmethod = SEmethod;
+  myests$estimation.method = ESTmethod; 
+  myests$ci.method = CImethod; 
+  myests$se.method = SEmethod;
   myests$predict.time = predict.time; 
   myests$alpha = alpha; 
   

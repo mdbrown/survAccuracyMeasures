@@ -12,7 +12,7 @@ getEstimatesSP <- function(data,
                        cutpoint,  
                        measures,
                        predict.time,
-                       CalVar=TRUE, cutoff.type = "none", cutoffN = 100, subcohort=FALSE)
+                       CalVar=TRUE, cutoff.type = "none", subcohort=FALSE)
 {  
   
 #  browser()
@@ -61,7 +61,7 @@ getEstimatesSP <- function(data,
   if(cutoff.type != "none"){
 
    # cutoffs <- unique(sort(c( cutpoint, quantile(linearY, (1:cutoffN/cutoffN), type =1, na.rm = TRUE))))
-    cutoffs <- unique(sort(c( quantile(linearY, (1:cutoffN/cutoffN), type =1, na.rm = TRUE))))
+    cutoffs <- linearY #unique(sort(c( quantile(linearY, (1:cutoffN/cutoffN), type =1, na.rm = TRUE))))
     
     cutpos = sum.I(cutoffs,">=", linearY[ooo])
     subdata.RT = data.RT[cutpos, ]
@@ -104,8 +104,16 @@ getEstimatesSP <- function(data,
 
     subdata = cbind(data[ooo,],data.RT[,c(2)], linearY[ooo])
     names(subdata)=c("times","status","y","wi","vi","Sy","linearY")
-
-    jjunk = Est.Wexp(subdata,N,RT.out,predict.time,vp,typex,typey, resid(fit, "score")[ooo], fit$var)
+    
+    jjunk = Est.Wexp.cpp(subdata, 
+                         N,
+                         RT.out,
+                         predict.time,
+                         vp,
+                         typex,
+                         typey, 
+                         resid(fit, "score")[ooo], 
+                         fit$var)
     Wexp = data.frame(cbind(jjunk$Wexp.beta,jjunk$Wexp.AUC,jjunk$Wexp.vp))
     
     se = sqrt(Est.Var.CCH.trueweights(N,Wexp,subdata,subdata$status, subcohort))  

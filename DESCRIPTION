@@ -13,5 +13,9 @@ Description: This package provides a function to estimate the AUC, TPR(c),
 License: GPL-2
 Depends:
     survival,
-    splines
+    splines, 
+    Rcpp, 
+    RcppArmadillo
+LinkingTo:Rcpp, RcppArmadillo
+Imports: Rcpp
 URL: https://github.com/mdbrown/survRpackages

@@ -1,7 +1,7 @@
 survAccuracyMeasures
 =============================================
 
-This R package computes non-parametric and semi-parametric estimates of accuracy measures for risk prediction markers from survival data. It consists of the function `survAM.estimate` which estimates the *AUC*, *TPR( c )*, *FPR( c )*, *PPV( c )*, and *NPV( c )* for for a specific timepoint and marker cutoff value c. Bootstrap standard errors, and confidence intervals are also computed. 
+This R package computes non-parametric and semi-parametric estimates of accuracy measures for risk prediction markers from survival data. It consists of the function `survAM.estimate` which estimates the *AUC*, *TPR( c )*, *FPR( c )*, *PPV( c )*, and *NPV( c )* for for a specific prediction time and marker cutoff value c. Standard errors for estimates can be obtained by bootstrapping (default) or analytically for large samples. Confidence intervals using a normal approximation are also computed. 
 
 For detailed information regarding estimation methods, see references below. 
 
@@ -29,14 +29,30 @@ head(SimData)
 Estimate all measures, using the bootstrap to estimate standard errors. First we obtain non-parametric estimates using double inverse probablity weighting:
 
 ```{r}
-#Estimate all the measures at future time 2, with a marker cutpoint at 0. 
+#Estimate all the measures at prediction time 2, with a marker cutpoint at 0. 
 
-#non-parametric estimates
+
+
+#non-parametric estimates with bootstrap standard errrors
+##in practice 'bootstraps' should be set to a larger value
 survAM.estimate(time =survTime, 
                 event = status, 
                 marker = Y,
                 data = SimData, 
-                estimation.method = "NP",
+                estimation.method = "NP",    
+                se.method = "bootstrap",
+                predict.time = 1, 
+                marker.cutpoint = 0, 
+                bootstraps = 50)
+
+
+## here we calculate an analytic estimator to obtain the SE's.  
+survAM.estimate(time =survTime, 
+                event = status, 
+                marker = Y,
+                data = SimData, 
+                estimation.method = "NP",    
+                se.method = "analytic",
                 predict.time = 1, 
                 marker.cutpoint = 0, 
                 bootstraps = 50)
@@ -47,14 +63,29 @@ Alternatively, we can calculate semi-parametric estimates based on a proportiona
 
 ```{r}
 #semi-parametric estimates assuming a cox model
+##in practice 'bootstraps' should be set to a larger value
 survAM.estimate(time =survTime, 
                 event = status, 
                 marker = Y,
                 data = SimData, 
                 estimation.method = "SP",
+                se.method = "bootstrap",
                 predict.time = 1, 
                 marker.cutpoint = 0, 
-                bootstraps = 50)
+                bootstraps = 1000)
+
+
+
+## here we calculate an analytic estimator to obtain the SE's.  
+survAM.estimate(time =survTime, 
+                event = status, 
+                marker = Y,
+                data = SimData, 
+                estimation.method = "SP",    
+                se.method = "analytic",
+                predict.time = 1, 
+                marker.cutpoint = 0)
+
 ```
 
 

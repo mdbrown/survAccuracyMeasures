@@ -7,7 +7,8 @@
                              predict.time,  
                              marker.cutpoint = 'median', 
                              estimation.method = "NP", 
-                             ci.method = "logit.transformed", 
+                             ci.method = "logit.transformed",
+                             se.method = "bootstrap",
                              bootstraps = 1000, 
                              alpha=0.05)
 }
@@ -42,10 +43,9 @@
   be calculated using logistic transformed values or the
   standard method.}
 
-  \item{SEmethod}{ Not functional. Analytic SE will 
-   be added soon, but for now only bootstrap SE's can be calculated.}
+  \item{se.method}{ Method to calculate standard errors for estimates. Options are "bootstrap" (default) or "analytic". Analytic se estimates are based on asymptotic properties and will not hold in small samples. Please see referenced papers for more information.}
 
-  \item{bootstraps}{if SEmethod = 'bootstrap', number of
+  \item{bootstraps}{if se.method = 'bootstrap', number of
   bootstrap replicates to use to estimate the SE.}
 
   \item{alpha}{alpha value for confidence intervals.

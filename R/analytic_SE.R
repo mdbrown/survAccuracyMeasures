@@ -1,0 +1,180 @@
+##### SEMI-PARAMETRIC
+
+WGT.FUN <- function(newdata, data, w.ptb=NULL, t0)
+{
+  ## ====================================##
+  ## KM Estimator of Censoring Survival  ##
+  ## ====================================##
+  Ghat.FUN <- function(tt, Ti, Di,type='fl',w.ptb=NULL)
+  {
+    tmpind <- rank(tt); if(is.null(w.ptb)){w.ptb=rep(1,length(Ti))}
+    summary(survfit(Surv(Ti,1-Di)~1, se.fit=F, type=type, weight=w.ptb), sort(tt))$surv[tmpind]
+  }
+  Ti = data[,1]; Di = data[,2]; tj = newdata[,1]; Wj = dj = newdata[,2]
+  Wj[tj<=t0] = dj[tj<=t0]/Ghat.FUN(tj[tj<=t0],Ti,Di)
+  Wj[tj >t0] = 1/Ghat.FUN(t0,Ti,Di)
+  Wj
+}
+
+
+Est.Wexp.cpp <-
+  function(data,N,RT.out,predict.time,uu0Vec,typexVec,typeyVec, resid.sco, fit.var) {
+    
+    if(missing(data))      { stop("Est.Wexp0: data not specified") }  
+    
+    #if( !("status" %in% names(data)) )  { stop(sprintf(errFormat,"status")) }
+    #if( !("times" %in% names(data)) )  { stop(sprintf(errFormat,"times")) }
+    
+    numCuts = nrow(data)
+    nr = numCuts
+    if(!"wi" %in% names(data)) {
+      data$weights=1
+    }
+    
+    # First, fit the survival model    
+    data = data[order(data$linearY),]   ## it is sorted it before this function; 
+    
+    Y  <- as.matrix(data[,!is.element(names(data), c("times", "zi", "status", "wi", "vi","Sy","linearY"))])
+    
+    np = dim(Y)[2]
+    # fit  = coxph(Surv(data$times,data$status)~Y, 
+    #              method="breslow", weight=data$weights)   
+    
+    # Doing riskmat, haz0 and time by hand since coxph.detail appears 
+    #  to be a newer R feature & some users may have not updated their R.
+    #    Note: this hazard is frequently normalized,
+    #    by multiplying by exp(mean(data$Y)*fit$coef), but that is 
+    #    not necessary here, as our haz0 below doesn't want it.
+    
+    
+    #dataD    =  subset(data[order(data$times),],status==1)  
+    
+
+    Wexp.all <- getWEXP(as.matrix(data), as.matrix(Y), N, as.matrix(RT.out), predict.time, c(resid.sco), fit.var);
+    
+    ## now get iid expansion for other accuracy summaries
+    ## global summaries 
+    ## AUC = sum(RT.out$TPR*(RT.out$FPR-c(RT.out$FPR[-1],0)))
+    mmm = length(RT.out$TPR)
+    #ITPR = sum(RT.out$TPR*(RT.out$RiskT-c(0,RT.out$RiskT[-mmm])))
+    #IFPR = sum(RT.out$FPR*(RT.out$RiskT-c(0,RT.out$RiskT[-mmm])))
+    #IDI = ITPR - IFPR
+    
+    #Wexp.ITPR = Wexp.all[[4]]%*%(RT.out$RiskT-c(0,RT.out$RiskT[-mmm]))+
+    #             (Wexp.all[[1]]-cbind(0,Wexp.all[[1]][,-mmm]))%*%RT.out$TPR
+    #Wexp.IFPR = Wexp.all[[3]]%*%(RT.out$RiskT-c(0,RT.out$RiskT[-mmm]))+
+    #             (Wexp.all[[1]]-cbind(0,Wexp.all[[1]][,-mmm]))%*%RT.out$FPR
+    #Wexp.IDI= Wexp.ITPR - Wexp.IFPR 	
+    #Wexp.AUC = Wexp.all[[4]]%*%(RT.out$FPR-c(RT.out$FPR[-1],0))+(Wexp.all[[3]]-cbind(Wexp.all[[3]][,-1],0))%*%RT.out$TPR
+    Wexp.AUC = cbind(0,Wexp.all[[4]])%*%(c(1,RT.out$FPR)-c(RT.out$FPR,0))+
+      (cbind(0,Wexp.all[[3]])-cbind(Wexp.all[[3]],0))%*%c(1,RT.out$TPR)
+    
+    
+    
+    
+    if(!is.null(uu0Vec)){
+      nvp = length(uu0Vec)
+      Wexp.vp  = matrix(0,nr,nvp)
+      
+      for (pp in 1:nvp) {	
+        uu0 = uu0Vec[pp]   
+        
+        uuk = sort(RT.out[,1]); 
+        tmpind = sum.I(uu0,">=",uuk)
+        ind0.y = match(typeyVec[pp],c("RiskT","v","FPR","TPR","rho","NPV","PPV"))
+        
+        Wexp.vp[,pp] = Wexp.all[[ind0.y]][,tmpind]
+      }
+      
+    }else{
+      Wexp.vp = NULL
+    }
+    
+    
+    list(Wexp.beta = Wexp.all[[8]], Wexp.AUC = Wexp.AUC,Wexp.vp=Wexp.vp)   
+  }
+
+
+
+
+
+##### NON-PARAMETRIC
+
+Phi.C.new.FUN<-function(xk,dk,Ti, Di, t0)
+{
+  #xk=xi; #dk=data[,7]; 
+  
+  tt=pmin(xk,t0); 
+  TT=sort(unique(pmin(Ti[Di==0], t0)));
+  nk=length(xk); N=length(Ti)
+  junk=summary(survfit(Surv(Ti,1-Di)~1, se.fit=F, type='fl'), TT)
+  pi=junk$n.risk/N
+  dLambda=junk$n.event/junk$n.risk
+  #c(0, diff(junk$surv))
+  tmp.ti=rep(xk, each=nk)
+  tmp.tj=rep(xk, nk)
+  tmp.t=pmin(tmp.ti, tmp.tj, t0)
+  phi2=matrix(sum.I(tmp.t, ">=", TT, dLambda/pi), nk, nk)
+  tmpind <- rank(tt); 
+  pk=summary(survfit(Surv(Ti,1-Di)~1, se.fit=F, type='fl'), sort(tt))$n.risk[tmpind]/N
+  phi1=matrix((tmp.ti<=tmp.tj)*rep(1-dk, each=nk)/rep(pk, nk), nk, nk)
+  phi=phi1-phi2
+  t(phi)
+  #  row of the output is for subject
+  #  colum of the output is for time
+}
+
+
+
+Phi.C.new.FUN<-function(xk,dk,Ti, Di, t0)
+{
+  #xk=xi; #dk=data[,7]; 
+  
+  tt=pmin(xk,t0); 
+  TT=sort(unique(pmin(Ti[Di==0], t0)));
+  nk=length(xk); N=length(Ti)
+  junk=summary(survfit(Surv(Ti,1-Di)~1, se.fit=F, type='fl'), TT)
+  pi=junk$n.risk/N
+  dLambda=junk$n.event/junk$n.risk
+  #c(0, diff(junk$surv))
+  tmp.ti=rep(xk, each=nk)
+  tmp.tj=rep(xk, nk)
+  tmp.t=pmin(tmp.ti, tmp.tj, t0)
+  phi2=matrix(sum.I(tmp.t, ">=", TT, dLambda/pi), nk, nk)
+  tmpind <- rank(tt); 
+  pk=summary(survfit(Surv(Ti,1-Di)~1, se.fit=F, type='fl'), sort(tt))$n.risk[tmpind]/N
+  phi1=matrix((tmp.ti<=tmp.tj)*rep(1-dk, each=nk)/rep(pk, nk), nk, nk)
+  phi=phi1-phi2
+  t(phi)
+  #  row of the output is for subject
+  #  colum of the output is for time
+}
+
+
+##----------------------------------------------------------------------------------------------##
+## Calculate Robust variance matrix for N iid vector U_ij from subject i in stratum j  		
+##----------------------------------------------------------------------------------------------##
+
+Kern.FUN <- function(zz,zi,bw,kern0="gauss") ## returns an (n x nz) matrix ##
+{ 
+  out = (VTM(zz,length(zi))- zi)/bw
+  switch(kern0,
+         "epan"= 0.75*(1-out^2)*(abs(out)<=1)/bw,
+         "gauss"= dnorm(out)/bw)
+}
+
+##------------------------------------------------------------
+## calculates the derivative function of the accuracy measure 
+##------------------------------------------------------------
+
+dACC.FUN <- function(u0, uu=SE.yy, A.u = Sp.yy, bw=NULL)
+{
+  bw.power = 0.3
+  data = cbind(uu,A.u); data=na.omit(data); data = data[rowSums(abs(data))<Inf,]
+  uu=data[,1]; A.u=data[,2]; n.u = length(uu)
+  A.u = A.u[order(uu)]; uu = sort(uu)
+  if(is.null(bw)){bw=1.06*min(sd(uu),IQR(uu)/1.34)*n.u^(-bw.power)}
+  Ki.u0 = Kern.FUN(u0, uu[-1], bw) ## (n.uu-1) x n.u0
+  c(t(A.u[-1]-A.u[-n.u])%*%Ki.u0)
+}
+

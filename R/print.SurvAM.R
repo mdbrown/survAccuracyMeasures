@@ -13,9 +13,9 @@ print.SurvAM <- function(x, ...){
   #x is a list with elements 'estimates', 'se', 'CIbounds', 'cutoff', 'CImethod', 'SEmethod', and 'predict.time'
   
   cat("\n")
-  cat(paste(ifelse(is.element(x$ESTmethod, c("S", "SP", "semiparametric", "Semi-Parametric")), "Semi-Parametric", "Non-Parametric"), "estimates of accuracy measures:\n"))
+  cat(paste(ifelse(is.element(x$estimation.method, c("S", "SP", "semiparametric", "Semi-Parametric")), "Semi-Parametric", "Non-Parametric"), "estimates of accuracy measures:\n"))
   cat(paste("   (SE's calculated using", 
-            ifelse(substr(x$SEmethod, 1, 4)=="norm", "normal approximation)", "the bootstrap)")))
+            ifelse(substr(x$se.method, 1, 4)=="anal", "analytic estimator)", "the bootstrap)")))
   cat("\n\n")
   mynames = names(x$estimates)
   
