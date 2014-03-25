@@ -6,7 +6,7 @@
                              data, 
                              predict.time,  
                              marker.cutpoint = 'median', 
-                             estimation.method = "NP", 
+                             estimation.method = "IPW", 
                              ci.method = "logit.transformed",
                              se.method = "bootstrap",
                              bootstraps = 1000, 
@@ -31,10 +31,9 @@
   cutpoint 'c' at which to estimate 'FPR', 'TPR', 'NPV' or
   'PPV'. default is \code{'median'} which takes cutpoint as the marker median.}
   
-  \item{estimation.method}{ Either "NP" (for 'Non-Parametric', this is the default) or 
-  "SP" (for 'Semi-Parametric') to indicate which method of estimation to use. 
-  Non-parametric estimates are computed using double inverse probability weighting,
-  and semi-parametric estimates assume a proportional hazards model. 
+  \item{estimation.method}{ Either "IPW" for non-parametric IPW estimates (default) or 
+  "Cox" for semi-parametric estimates that use a Cox proportional hazards model.
+
   }
 
   \item{ci.method}{character string of either
@@ -43,7 +42,7 @@
   be calculated using logistic transformed values or the
   standard method.}
 
-  \item{se.method}{ Method to calculate standard errors for estimates. Options are "bootstrap" (default) or "analytic". Analytic se estimates are based on asymptotic properties and will not hold in small samples. Please see referenced papers for more information.}
+  \item{se.method}{ Method to calculate standard errors for estimates. Options are "bootstrap" (default) or "asymptotic". Asymptotic estimates are based on large sample calculations and will not hold in small samples. Please see referenced papers for more information.}
 
   \item{bootstraps}{if se.method = 'bootstrap', number of
   bootstrap replicates to use to estimate the SE.}
@@ -73,25 +72,36 @@
 data(SimData)
 
 #non-parametric estimates
-tmp <- survEstMeasures(time =survTime, 
+tmp <- survAM.estimate(time =survTime, 
                        event = status, 
                        marker = Y,
                        data = SimData,
-                       ESTmethod = "NP"
+                       estimation.method = "IPW",
                        predict.time = 2, 
-                       cutpoint = 0, 
+                       marker.cutpoint = 0, 
                        bootstraps = 50)
 tmp
 tmp$estimates
 
 #semi-parametric estimates
-tmp <- survEstMeasures(time =survTime, 
+tmp <- survAM.estimate(time =survTime, 
                        event = status, 
                        marker = Y,
                        data = SimData,
-                       ESTmethod = "SP"
+                       estimation.method = "Cox",
                        predict.time = 2, 
-                       cutpoint = 0, 
+                       marker.cutpoint = 0, 
+                       bootstraps = 50)
+                       
+#semi-parametric estimates with asymptotic standard errors
+tmp <- survAM.estimate(time =survTime, 
+                       event = status, 
+                       marker = Y,
+                       data = SimData,
+                       estimation.method = "Cox", 
+                       se.method = "asymptotic", 
+                       predict.time = 2, 
+                       marker.cutpoint = 0, 
                        bootstraps = 50)
 
 }

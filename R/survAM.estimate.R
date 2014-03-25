@@ -2,7 +2,7 @@ survAM.estimate <- function(time, event, marker,
                              data, 
                              predict.time,  
                              marker.cutpoint = 'median', 
-                             estimation.method = "NP", 
+                             estimation.method = "IPW", 
                              ci.method = "logit.transformed", 
                              se.method = "bootstrap",
                              bootstraps = 1000, 
@@ -15,47 +15,43 @@ survAM.estimate <- function(time, event, marker,
   event <- 1*eval(substitute(event), data)
   marker <- eval(substitute(marker), data)
 
-  stopifnot(is.element(estimation.method, c("NP", "SP")))
+  stopifnot(is.element(estimation.method, c("IPW", "Cox")))
   stopifnot(is.numeric(predict.time))
   if(marker.cutpoint=='median') marker.cutpoint =  median(eval(substitute(marker), data))
   stopifnot(is.numeric(marker.cutpoint))
+    stopifnot(is.element(se.method, c("bootstrap", "asymptotic")))
+  
+  #cant return IPW se estimates 
+  if(estimation.method =="IPW" & se.method=="asymptotic") stop("Asymptotic variance calculations are not available for IPW estimates, please use the bootstrap to calculate standard error")
   
   #set some defaults
   measures = c('all')
-  cutoff <- marker.cutpoint
-  cutpoint <- marker.cutpoint
-  cutoff.type = "none";
-  SEmethod =se.method; 
-  
-  stopifnot(is.element(se.method, c("bootstrap", "analytic")))
+
   if(is.element("all", measures)) measures <- c("AUC","TPR", "FPR", "PPV", "NPV")
-  
-  
-  ESTmethod = estimation.method
-  CImethod = ci.method
+
   N = nrow(data)
 
   ## get estimates via getEstimates, also calculate the bootstrap se if necessary
   
   #we handle semiparametric and nonparametric estimates differently
-  if(is.element(ESTmethod, c("S", "SP", "Semi-Parametric", "semiparametric"))){
+  if(is.element(estimation.method, c("S", "Cox", "Semi-Parametric", "semiparametric"))){
   
     mydata <- prepareDataSP(time, event, marker)
     
-    if(SEmethod == "analytic"){
+    if(se.method == "asymptotic"){
       
       estRawOutput <- getEstimatesSP( data = mydata, 
-                                      cutpoint = cutpoint,  
+                                      cutpoint = marker.cutpoint,  
                                       measures = measures,
                                       predict.time = predict.time,
                                       CalVar = TRUE)  
       
-    }else if(substr(SEmethod, 1,4)=="boot"){
+    }else if(substr(se.method, 1,4)=="boot"){
       bootstraps = round(bootstraps)
       if(bootstraps <= 1) stop("bootstraps must be larger than 1")
       #estimates
       estRawOutput<-  getEstimatesSP( data = mydata, 
-                                                     cutpoint = cutpoint,  
+                                                     cutpoint = marker.cutpoint,  
                                                      measures = measures,
                                                      predict.time = predict.time,
                                                      CalVar = FALSE)
@@ -63,7 +59,7 @@ survAM.estimate <- function(time, event, marker,
       bootests <- matrix(ncol = length(estRawOutput$est), nrow = bootstraps)
       for( b in 1:bootstraps){                  
         bootests[b,] <- unlist(getEstimatesSP( data = mydata[sample.int(N, replace = TRUE),], 
-                                                        cutpoint = cutpoint,  
+                                                        cutpoint = marker.cutpoint,  
                                                         measures = measures,
                                                         predict.time = predict.time,
                                                         CalVar = FALSE)$est) 
@@ -72,26 +68,26 @@ survAM.estimate <- function(time, event, marker,
       names(estRawOutput$se) = names(estRawOutput$estimates)
     }
     
-  }else if(is.element(ESTmethod, c("N", "NP", "Non-Parametric", "nonparametric"))){
+  }else if(is.element(estimation.method, c("NP", "IPW"))){
     mydata <- prepareDataNP(time, event, marker)
     
     
     ##no bootstrap
    
-      if(SEmethod == "analytic"){
+      if(se.method == "asymptotic"){
         
         estRawOutput <- getEstimatesNP( data = mydata, 
-                                        cutpoint = cutpoint,  
+                                        cutpoint = marker.cutpoint,  
                                         measures = measures,
                                         predict.time = predict.time,
                                         CalVar = TRUE)  
         
-      }else if(substr(SEmethod, 1,4)=="boot"){
+      }else if(substr(se.method, 1,4)=="boot"){
         bootstraps = round(bootstraps)
         if(bootstraps <= 1) stop("bootstraps must be larger than 1")
         #estimates
         estRawOutput<-  getEstimatesNP( data = mydata, 
-                                                        cutpoint = cutpoint,  
+                                                        cutpoint = marker.cutpoint,  
                                                         measures = measures,
                                                         predict.time = predict.time,
                                                         CalVar = FALSE  
@@ -101,7 +97,7 @@ survAM.estimate <- function(time, event, marker,
         for( b in 1:bootstraps){   
 
           bootests[b,] <-  unlist(getEstimatesNP( data = mydata[sample.int(N, replace = TRUE),], 
-                                                          cutpoint = cutpoint,  
+                                                          cutpoint = marker.cutpoint,  
                                                           measures = measures,
                                                           predict.time = predict.time,
                                                           CalVar = FALSE)$est) 
@@ -116,18 +112,18 @@ survAM.estimate <- function(time, event, marker,
     
   }else{
     
-    stop("ESTmethod not set correctly: it must be one of `SP` (or 'semiparametric') or 'NP' (or 'nonparametric')")
+    stop("estimation.method not set correctly: it must be one of `Cox` or 'IPW'")
   }
      
 
      #process the raw estimate data for clean output
-     myests <- processRawOutput(estRawOutput, CImethod, alpha)
+     myests <- processRawOutput(estRawOutput, ci.method, alpha)
  
         
-  myests$cutpoint = cutpoint; 
-  myests$estimation.method = ESTmethod; 
-  myests$ci.method = CImethod; 
-  myests$se.method = SEmethod;
+  myests$cutpoint = marker.cutpoint; 
+  myests$estimation.method = estimation.method; 
+  myests$ci.method = ci.method; 
+  myests$se.method = se.method;
   myests$predict.time = predict.time; 
   myests$alpha = alpha; 
   
