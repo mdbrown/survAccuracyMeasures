@@ -41,7 +41,7 @@ getEstimatesSP <- function(data,
 
      linearY <-  data$Y*betahat            #linearY is sorted by original data
      Sy <- exp(-Lambda0t*exp(linearY))
-  
+
   
     ####
 
