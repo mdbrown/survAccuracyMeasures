@@ -1,3 +1,6 @@
+---
+output: pdf_document
+---
 survAccuracyMeasures
 =============================================
 
@@ -5,7 +8,8 @@ This R package computes non-parametric (NP) and semi-parametric (SP) estimates o
 
  NP estimates are calculated using inverse probability weighting, while SP estimates are based on a Cox proportional hazards model. For detailed information regarding estimation methods, see references below. 
 
-Standard errors for estimates can be obtained by bootstrapping. Asymptotic standard error calculations are also available for semi-parametric Cox estimates. Confidence intervals using a normal approximation are also computed.
+Standard errors for estimates can be obtained by bootstrapping. Asymptotic standard error calculations are also available for semi-parametric Cox estimates. Confidence intervals using a normal approximation are computed.
+
 ## Tutorial
 
 

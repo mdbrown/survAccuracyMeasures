@@ -42,7 +42,9 @@
 <h1>survAccuracyMeasures</h1>
 <p>This R package computes non-parametric (NP) and semi-parametric (SP) estimates of common accuracy measures for risk prediction markers from survival data. It consists of the function <code>survAM.estimate</code> which estimates the <em>AUC</em>, <em>TPR( c )</em>, <em>FPR( c )</em>, <em>PPV( c )</em>, and <em>NPV( c )</em> for for a specific prediction time and marker cutoff value c.</p>
 <p>NP estimates are calculated using inverse probability weighting, while SP estimates are based on a Cox proportional hazards model. For detailed information regarding estimation methods, see references below.</p>
-<p>Standard errors for estimates can be obtained by bootstrapping. Asymptotic standard error calculations are also available for semi-parametric Cox estimates. Confidence intervals using a normal approximation are also computed. ## Tutorial</p>
+<p>Standard errors for estimates can be obtained by bootstrapping. Asymptotic standard error calculations are also available for semi-parametric Cox estimates. Confidence intervals using a normal approximation are computed.</p>
+<div id="tutorial" class="section level2">
+<h2>Tutorial</h2>
 <pre class="r"><code>#install the package from github
 # download the package from github
 if (!require(&quot;devtools&quot;)) install.packages(&quot;devtools&quot;)
@@ -81,11 +83,11 @@ survAM.estimate(time =survTime,
 ##    (SE's calculated using the bootstrap)
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
-## AUC        0.786     0.032         0.717       0.841 
-## TPR(c)     0.769     0.054         0.648       0.858 
-## FPR(c)     0.410     0.024         0.364       0.459 
-## PPV(c)     0.231     0.030         0.177       0.295 
-## NPV(c)     0.941     0.015         0.905       0.964 
+## AUC        0.786     0.028         0.727       0.835 
+## TPR(c)     0.769     0.055         0.644       0.860 
+## FPR(c)     0.410     0.022         0.368       0.454 
+## PPV(c)     0.231     0.024         0.187       0.281 
+## NPV(c)     0.941     0.015         0.904       0.964 
 ## 
 ##  marker cutpoint: c = 0</code></pre>
 <p>Alternatively, we can calculate semi-parametric estimates based on a Cox proportional hazards model:</p>
@@ -105,12 +107,12 @@ survAM.estimate(time =survTime,
 ##    (SE's calculated using the bootstrap)
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
-## coef       1.010     0.092         0.829       1.191 
-## AUC        0.768     0.021         0.724       0.808 
-## TPR(c)     0.788     0.031         0.722       0.842 
-## FPR(c)     0.412     0.022         0.369       0.457 
-## PPV(c)     0.241     0.029         0.189       0.302 
-## NPV(c)     0.943     0.011         0.918       0.961 
+## coef       1.010     0.091         0.831       1.189 
+## AUC        0.768     0.020         0.726       0.806 
+## TPR(c)     0.788     0.029         0.726       0.839 
+## FPR(c)     0.412     0.021         0.372       0.454 
+## PPV(c)     0.241     0.026         0.195       0.295 
+## NPV(c)     0.943     0.008         0.924       0.958 
 ## 
 ##  marker cutpoint: c = 0</code></pre>
 <pre class="r"><code>## here we calculate the SE's based on the asymptotic properties of the Cox estimator.  
@@ -143,6 +145,7 @@ survAM.estimate(time =survTime,
 <p>Zheng Y, Cai T, Pepe MS, Levy, W. Time-dependent predictive values of prognostic biomarkers with failure time outcome. <em>JASA</em> 2008, 103: 362-368.</p>
 <div class="references">
 
+</div>
 </div>
 </div>
 </div>
