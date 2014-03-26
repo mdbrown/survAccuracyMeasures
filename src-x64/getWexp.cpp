@@ -16,7 +16,7 @@ Rcpp::List getWEXP(arma::mat data, arma::mat Y, int N, arma::mat RT_out, double 
    arma::mat dataD = dataDuns.rows(sort_index(dataDuns.col(0)));
 
 
-   int n = data.n_rows, nD = dataD.n_rows, np = Y.n_cols; 
+   int n = data.n_rows, nD = dataD.n_rows, k = data.n_cols, np = Y.n_cols; 
    //guide
     colvec times = data.col(0); 
    // status= data.col(1); 

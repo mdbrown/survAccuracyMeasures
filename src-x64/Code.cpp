@@ -1,15 +1,110 @@
 // [[Rcpp::depends("RcppArmadillo")]]
 #include <RcppArmadillo.h>
+
 #include "Code.h"
 
 using namespace std; 
-using namespace Rcpp;
-using namespace arma; 
+using namespace arma;
+using namespace Rcpp; 
 
 
-// [[Rcpp::export]]
-Rcpp::List getWEXP(arma::mat data, arma::mat Y, int N, arma::mat RT_out, double predictTime, arma::vec resid_sco, double fitvar){
+uvec myRank( colvec x){
+  
+   int n = x.n_elem; 
+   uvec ind(n); 
+   ind(0) = 1; 
+   for( uvec::iterator i = ind.begin()+1; i != ind.end(); i++){
+     *i = *(i-1)+1;  
+   }  
+   
+   uvec sind = stable_sort_index(stable_sort_index(x));
+    
+   return ind.elem(sind); 
+}
 
+
+
+mat CSumI( colvec yy, int FUN, colvec Yi, mat Vi, bool v){
+  //FUN == 0 for < 
+  //    == 1 for <=
+  //    == 2 for > 
+  //    == 4 for >=
+  
+  int yy_n = yy.n_elem; 
+  int Yi_n = Yi.n_elem; 
+
+
+  if(FUN==0 || FUN == 4){
+     yy = -yy; 
+     Yi = -Yi; 
+  }
+
+  colvec all_y(yy_n+Yi_n); 
+  for( int i=0; i<yy_n; i++){  
+    all_y(i) = yy(i); 
+  }
+
+  for( int j=yy_n; j < Yi_n + yy_n; j++){
+    all_y(j) = Yi(j-yy_n); 
+  }
+
+  uvec pos = myRank(all_y).subvec(0, yy_n-1) - myRank(yy);   
+
+  //if there is an equality
+  if( FUN==1 || FUN ==4){
+    pos = Yi_n - pos; 
+  }
+
+  if(v){
+     uvec tmpind = stable_sort_index(Yi); 
+
+     if(FUN ==1 || FUN == 4){ 
+        tmpind = stable_sort_index(-Yi); 
+     }
+        
+     
+      
+      mat newVi = cumsum(Vi.rows(tmpind));
+ 
+      newVi.insert_rows(0,1);
+      
+
+      return newVi.rows(pos); 
+
+   }else return conv_to<colvec>::from(pos); 
+
+}
+
+mat Vec2Mat(colvec yy, int Nrows){
+   int yy_n = yy.n_elem;
+ 
+   mat out(Nrows, yy_n); 
+   out.each_row() = yy.t(); 
+
+   return out; 
+
+}
+
+   
+colvec myPmin( colvec myvec, double x){
+    
+   myvec(find(myvec > x)).fill(x); 
+   return myvec; 
+}
+
+
+
+SEXP getWEXP(SEXP datar_SEXP, SEXP Yr_SEXP, SEXP N_SEXP, SEXP RT_outr_SEXP, SEXP predictTime_SEXP, SEXP resid_sco_SEXP, SEXP fitvar_SEXP){
+   //convert SEXP to arma
+ 
+   arma::mat data = Rcpp::as<arma::mat>(datar_SEXP);
+   arma::mat Y = Rcpp::as<arma::mat>(Yr_SEXP);
+   arma::mat RT_out = Rcpp::as<arma::mat>(RT_outr_SEXP);
+   arma::vec resid_sco = Rcpp::as<arma::vec >(resid_sco_SEXP);
+   
+   int N = Rcpp::as<int>(N_SEXP);
+   double predictTime = Rcpp::as<double>(predictTime_SEXP); 
+   double fitvar = Rcpp::as<double>(fitvar_SEXP); 
    
    //create dataD
    arma::mat dataDuns = data.rows(find(data.col(1)==1));
@@ -100,4 +195,11 @@ for(colvec::iterator j = dataD.begin_col(0); j != dataD.end_col(0); j++){
 
    return out; 
 }
+
+
+
+
+
+
+
 
