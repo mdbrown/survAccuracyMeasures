@@ -1,6 +1,4 @@
----
-output: pdf_document
----
+
 survAccuracyMeasures
 =============================================
 
@@ -24,16 +22,6 @@ devtools::install_github("survAccuracyMeasures", "mdbrown")
 
 ```r
 library(survAccuracyMeasures)
-```
-
-```
-## Loading required package: survival
-## Loading required package: splines
-## Loading required package: Rcpp
-## Loading required package: RcppArmadillo
-```
-
-```r
 
 # simulated data for illustration
 data(SimData)
@@ -72,11 +60,11 @@ survAM.estimate(time = survTime, event = status, marker = Y, data = SimData,
 ##    (SE's calculated using the bootstrap)
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
-## AUC        0.786     0.029         0.723       0.837 
-## TPR(c)     0.769     0.048         0.662       0.850 
-## FPR(c)     0.410     0.030         0.352       0.471 
-## PPV(c)     0.231     0.029         0.179       0.292 
-## NPV(c)     0.941     0.013         0.910       0.962 
+## AUC        0.786     0.034         0.712       0.845 
+## TPR(c)     0.769     0.050         0.658       0.852 
+## FPR(c)     0.410     0.025         0.363       0.460 
+## PPV(c)     0.231     0.026         0.184       0.285 
+## NPV(c)     0.941     0.017         0.897       0.967 
 ## 
 ##  marker cutpoint: c = 0
 ```
@@ -101,11 +89,11 @@ survAM.estimate(time = survTime, event = status, marker = Y, data = SimData,
 ## 
 ##         estimate     se      lower 0.95  upper 0.95
 ## coef       1.010     0.089         0.836       1.184 
-## AUC        0.768     0.021         0.725       0.807 
-## TPR(c)     0.788     0.031         0.720       0.843 
-## FPR(c)     0.412     0.024         0.366       0.461 
-## PPV(c)     0.241     0.025         0.196       0.293 
-## NPV(c)     0.943     0.009         0.923       0.958 
+## AUC        0.768     0.021         0.724       0.807 
+## TPR(c)     0.788     0.030         0.723       0.841 
+## FPR(c)     0.412     0.021         0.372       0.455 
+## PPV(c)     0.241     0.026         0.194       0.295 
+## NPV(c)     0.943     0.008         0.925       0.958 
 ## 
 ##  marker cutpoint: c = 0
 ```
