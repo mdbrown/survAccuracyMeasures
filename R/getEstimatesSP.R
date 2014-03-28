@@ -12,10 +12,12 @@ getEstimatesSP <- function(data,
                        cutpoint,  
                        measures,
                        predict.time,
-                       CalVar=TRUE, cutoff.type = "none", subcohort=FALSE)
+                       CalVar=TRUE, 
+                       cutoff.type = "none",
+                       subcohort=FALSE)
 {  
   
-#  browser()
+ 
   
   N = nrow(data)
   data$vi = 1; #data$wi = 1
@@ -55,21 +57,21 @@ getEstimatesSP <- function(data,
   
  ###
 
-
- 
-  
+ # cutoff.type = "yes"
   if(cutoff.type != "none"){
-
-   # cutoffs <- unique(sort(c( cutpoint, quantile(linearY, (1:cutoffN/cutoffN), type =1, na.rm = TRUE))))
-    cutoffs <- linearY #unique(sort(c( quantile(linearY, (1:cutoffN/cutoffN), type =1, na.rm = TRUE))))
     
+    #if we use cutoffs, not used in the released version of package
+   cutoffN <- min(N, 100)
+   cutoffs <- unique(sort(c( cutpoint, quantile(linearY, (1:cutoffN/cutoffN), type =1, na.rm = TRUE))))
+ 
     cutpos = sum.I(cutoffs,">=", linearY[ooo])
     subdata.RT = data.RT[cutpos, ]
     
     RT.out = EstRTall(subdata.RT) 
-    
+   
+    AUC    <- RT.out[[2]]
     RT.out <- RT.out[[1]]
-    AUC   = sum(RT.out$TPR*(RT.out$FPR-c(RT.out$FPR[-1],0)))
+
     
   }else{
   
@@ -104,7 +106,7 @@ getEstimatesSP <- function(data,
 
     subdata = cbind(data[ooo,],data.RT[,c(2)], linearY[ooo])
     names(subdata)=c("times","status","y","wi","vi","Sy","linearY")
-    
+    if(cutoff.type=="none") cutoffs = NA
     jjunk = Est.Wexp.cpp(subdata, 
                          N,
                          RT.out,
@@ -113,7 +115,10 @@ getEstimatesSP <- function(data,
                          typex,
                          typey, 
                          resid(fit, "score")[ooo], 
-                         fit$var)
+                         fit$var, 
+                         cutoffs = cutoffs)
+    
+  
     Wexp = data.frame(cbind(jjunk$Wexp.beta,jjunk$Wexp.AUC,jjunk$Wexp.vp))
     
     se = sqrt(Est.Var.CCH.trueweights(N,Wexp,subdata,subdata$status, subcohort))  

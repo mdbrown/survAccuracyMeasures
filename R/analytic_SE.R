@@ -18,7 +18,7 @@ WGT.FUN <- function(newdata, data, w.ptb=NULL, t0)
 
 
 Est.Wexp.cpp <-
-  function(data,N,RT.out,predict.time,uu0Vec,typexVec,typeyVec, resid.sco, fit.var) {
+  function(data,N,RT.out,predict.time,uu0Vec,typexVec,typeyVec, resid.sco, fit.var, cutoffs) {
     
     if(missing(data))      { stop("Est.Wexp0: data not specified") }  
     
@@ -48,10 +48,31 @@ Est.Wexp.cpp <-
     
     
     #dataD    =  subset(data[order(data$times),],status==1)  
-    
 
+    if(is.na(cutoffs)[1]){
     Wexp.all <- getWEXP(as.matrix(data), as.matrix(Y), N, as.matrix(RT.out), predict.time, c(resid.sco), fit.var);
-    
+    }else{
+      
+      cutpos = sum.I(cutoffs,">=", data$linearY)
+      
+      Y.sub <- as.matrix(Y[cutpos,])
+      subdata <- data[cutpos,]
+     
+      ncut = nrow(subdata)
+      
+      np = dim(Y)[2]
+      
+
+    Wexp.all <- getWEXPcutoff(as.matrix(data),
+                               as.matrix(subdata),
+                               Y = as.matrix(Y),
+                               Y.sub,
+                               N, as.matrix(RT.out), 
+                               predict.time, c(resid.sco), fit.var, 
+                               cutoffs);
+
+      
+    }
     ## now get iid expansion for other accuracy summaries
     ## global summaries 
     ## AUC = sum(RT.out$TPR*(RT.out$FPR-c(RT.out$FPR[-1],0)))

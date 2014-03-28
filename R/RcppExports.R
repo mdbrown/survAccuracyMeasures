@@ -5,3 +5,7 @@ getWEXP <- function(data, Y, N, RT_out, predictTime, resid_sco, fitvar) {
     .Call('survAccuracyMeasures_getWEXP', PACKAGE = 'survAccuracyMeasures', data, Y, N, RT_out, predictTime, resid_sco, fitvar)
 }
 
+getWEXPcutoff <- function(data, subdata, Y, subY, N, RT_out, predictTime, resid_sco, fitvar, cutoffs) {
+    .Call('survAccuracyMeasures_getWEXPcutoff', PACKAGE = 'survAccuracyMeasures', data, subdata, Y, subY, N, RT_out, predictTime, resid_sco, fitvar, cutoffs)
+}
+
