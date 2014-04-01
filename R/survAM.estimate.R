@@ -22,7 +22,7 @@ survAM.estimate <- function(time, event, marker,
     stopifnot(is.element(se.method, c("bootstrap", "asymptotic")))
   
   #cant return IPW se estimates 
-  #if(estimation.method =="IPW" & se.method=="asymptotic") stop("Asymptotic variance calculations are not available for IPW estimates, please use the bootstrap to calculate standard error")
+  if(estimation.method =="IPW" & se.method=="asymptotic") stop("Asymptotic variance calculations are not available for IPW estimates, please use the bootstrap to calculate standard error")
   
   #set some defaults
   measures = c('all')
