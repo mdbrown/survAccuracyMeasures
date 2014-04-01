@@ -57,7 +57,7 @@ getEstimatesSP <- function(data,
   
  ###
 
- # cutoff.type = "yes"
+  cutoff.type = "yes"
   if(cutoff.type != "none"){
     
     #if we use cutoffs, not used in the released version of package
