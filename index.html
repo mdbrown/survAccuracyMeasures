@@ -69,11 +69,9 @@
 <p>This R package computes non-parametric and semi-parametric estimates of common accuracy measures for risk prediction markers from survival data. It consists of the function <code>survAM.estimate</code> which estimates the <em>AUC</em>, <em>TPR( c )</em>, <em>FPR( c )</em>, <em>PPV( c )</em>, and <em>NPV( c )</em> for for a specific prediction time and marker cutoff value c.</p>
 <div id="time-dependent-measures-of-accuracy" class="section level3">
 <h3>Time-dependent measures of accuracy</h3>
-<p>For a continuous marker measured at baseline, <span class="math">\(Y\)</span>, a cutpoint <span class="math">\(c\)</span> such that <span class="math">\(Y&gt;c\)</span> determines the subgroup of ‘high risk’ observations and <span class="math">\(Y \le c\)</span> ‘low risk’, failure time <span class="math">\(T\)</span>, and a prediction time <span class="math">\(t_{predict}\)</span>, accuracy measures are defined as:</p>
+<p>For a continuous marker measured at baseline, Y, a marker cutpoint c, failure time T, and a prediction time t, accuracy measures are defined as:</p>
 <div style="width:250px">
-<img src="http://www.sciweavers.org/tex2img.php?eq=TPR_t%28c%29%20%3D%20P%28Y%3Ec%7CT%20%20%5Cleq%20t_%7Bpredict%7D%29&bc=Transparent&fc=Black&im=jpg&fs=12&ff=arev&edit=0" align="center" border="0" alt="TPR_t(c) = P(Y>c|T  \leq t_{predict})" width="250" height="21" />
-<img src="http://latex.codecogs.com/gif.latex?\inline&space;FPR_t(c)&space;=&space;P(Y>c|T>t_{predict})" title="FPR_t(c) = P(Y>c|T>t_{predict})" >
-</div>
+<img src="http://latex.codecogs.com/gif.latex?\inline&space;\dpi{200}&space;TPR_t(c)&space;=&space;P(Y>c|T\leq&space;t)" title="TPR_t(c) = P(Y>c|T\leq t)" /></div>
   
 </div>
 <div id="estimation" class="section level2">
