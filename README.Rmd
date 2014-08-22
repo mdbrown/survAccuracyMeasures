@@ -22,7 +22,7 @@ devtools::install_github("survAccuracyMeasures", "mdbrown")
 
 ```{r}
 library(survAccuracyMeasures)
-
+set.seed(112233)
 #simulated data for illustration
 data(SimData)
 head(SimData)
@@ -43,7 +43,7 @@ survAM.estimate(time =survTime,
                 estimation.method = "IPW",    
                 se.method = "bootstrap",
                 predict.time = 1, 
-                marker.cutpoint = 0, 
+                marker.cutpoint = 0.5, 
                 bootstraps = 50)
 ```
 
