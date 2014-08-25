@@ -1,3 +1,4 @@
 export(survAM.estimate, print.SurvAM)
 useDynLib(survAccuracyMeasures)
 importFrom(Rcpp, sourceCpp)
+import(survival, splines)

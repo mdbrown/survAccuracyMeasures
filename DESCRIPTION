@@ -2,7 +2,7 @@ Package: survAccuracyMeasures
 Type: Package
 Title: Estimate accuracy measures for risk prediction markers from survival data
 Version: 1.2
-Date: 2013-06-11
+Date: 2014-08-22
 Author: Yingye Zheng, Tianxi Cai, and Marshall Brown
 Maintainer: Marshall Brown <mdbrown@fhcrc.org>
 Description: This package provides a function to estimate the AUC, TPR(c),
@@ -11,11 +11,9 @@ Description: This package provides a function to estimate the AUC, TPR(c),
     and confidence intervals are also computed. Either analytic or bootstrap 
     standard errors can be computed.
 License: GPL-2
-Depends:
+Depends: 
     survival,
-    splines, 
-    Rcpp, 
-    RcppArmadillo
-LinkingTo:Rcpp, RcppArmadillo
+    splines
+LinkingTo: Rcpp, RcppArmadillo
 Imports: Rcpp
 URL: https://github.com/mdbrown/survRpackages

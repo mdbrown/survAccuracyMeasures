@@ -57,9 +57,12 @@ getEstimatesNP <- function(data,
   if(!CalVar){
    list("estimates" = est)
   }else{
-    ###### Variance calculation below ########
-    Phi=Phi.C.new.FUN(xk=data$xi,dk=data$di, Ti=data0$xi, Di=data0$di, t0 = t0)
     
+    #this portion of the code is not functional
+    
+    ###### Variance calculation below ########
+   # Phi=Phi.C.new.FUN(xk=data$xi,dk=data$di, Ti=data0$xi, Di=data0$di, t0 = t0)
+    Phi = NA #this portion of the code is not functional
     ## doing u0 and c0 together
     c.u0 = NULL; acc.u0.temp=NULL; F.c0.b =F.c0
     
