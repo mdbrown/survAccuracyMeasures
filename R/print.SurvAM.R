@@ -45,7 +45,11 @@ print.SurvAM <- function(x, ...){
   
   cat("\n")
   
-if(any(mynames %in% c("FPR(c)", "TPR(c)" , "NPV(c)" , "PPV(c)"))) cat(" marker cutpoint: c =", x$cutpoint, "\n")
+if(x$threshold.type != "marker"){
+  cat(paste0("threshold c: ",x$threshold.type, "(c) = ",  x$threshold, "\n"))
+}else{
+  cat(paste0("marker threshold: c = ",  x$threshold, "\n"))
+}
 cat("\n")
   
   

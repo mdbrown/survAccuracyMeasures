@@ -43,7 +43,8 @@ survAM.estimate(time =survTime,
                 estimation.method = "IPW",    
                 se.method = "bootstrap",
                 predict.time = 1, 
-                marker.cutpoint = 0.5, 
+                threshold = 0.5, 
+                threshold.type = 'marker', 
                 bootstraps = 50)
 
 survAM.estimate(time =survTime, 
@@ -53,7 +54,8 @@ survAM.estimate(time =survTime,
                 estimation.method = "IPW",    
                 se.method = "asymptotic",
                 predict.time = 1, 
-                marker.cutpoint = 0.5)
+                threshold = 0.5, 
+                threshold.type = 'marker' )
 ```
 
 Alternatively, we can calculate semi-parametric estimates based on a Cox proportional hazards model:
@@ -69,7 +71,8 @@ survAM.estimate(time =survTime,
                 estimation.method = "Cox",
                 se.method = "bootstrap",
                 predict.time = 1, 
-                marker.cutpoint = 0, 
+                threshold = 0.5, 
+                threshold.type = 'marker',
                 bootstraps = 50)
 
 
@@ -81,10 +84,60 @@ survAM.estimate(time =survTime,
                 estimation.method = "Cox",    
                 se.method = "asymptotic",
                 predict.time = 1, 
-                marker.cutpoint = 0)
+                threshold = 0.5, 
+                threshold.type = 'marker')
 
 ```
 
+
+```{r}
+#Estimate all the measures at prediction time 2, with a marker cutpoint at 0. 
+
+#non-parametric estimates with bootstrap standard errrors
+##in practice 'bootstraps' should be set to a larger value
+survAM.estimate(time =survTime, 
+                event = status, 
+                marker = Y,
+                data = SimData, 
+                estimation.method = "IPW",    
+                se.method = "bootstrap",
+                predict.time = 1, 
+                threshold = .5, 
+                threshold.type = 'PPV', 
+                bootstraps = 50)
+
+```
+
+Alternatively, we can calculate semi-parametric estimates based on a Cox proportional hazards model:
+
+
+```{r}
+#semi-parametric estimates assuming a cox model
+##in practice 'bootstraps' should be set to a larger value
+survAM.estimate(time =survTime, 
+                event = status, 
+                marker = Y,
+                data = SimData, 
+                estimation.method = "Cox",
+                se.method = "bootstrap",
+                predict.time = 1, 
+                threshold = 0.05, 
+                threshold.type = 'FPR',
+                bootstraps = 50)
+
+
+## here we calculate the SE's based on the asymptotic properties of the Cox estimator.  
+survAM.estimate(time =survTime, 
+                event = status, 
+                marker = Y,
+                data = SimData, 
+                estimation.method = "Cox",    
+                se.method = "asymptotic",
+                predict.time = 1, 
+                threshold = 0.05, 
+                threshold.type = 'FPR')
+
+```
 
 
 

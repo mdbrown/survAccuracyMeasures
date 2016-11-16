@@ -1,10 +1,11 @@
 survAM.estimate <- function(time, event, marker,
                              data, 
                              predict.time,  
-                             marker.cutpoint = 'median', 
-                             estimation.method = "IPW", 
-                             ci.method = "logit.transformed", 
-                             se.method = "bootstrap",
+                             threshold, 
+                             threshold.type = c("marker", "FPR", "TPR", "PPV", "NPV"),
+                             estimation.method = c("IPW", "Cox"), 
+                             ci.method = c("logit.transformed", "standard"), 
+                             se.method = c("bootstrap", "asymptotic"),
                              bootstraps = 1000, 
                              alpha=0.05){
 
@@ -14,13 +15,19 @@ survAM.estimate <- function(time, event, marker,
   time <- eval(substitute(time), data)
   event <- 1*eval(substitute(event), data)
   marker <- eval(substitute(marker), data)
-
-  stopifnot(is.element(estimation.method, c("IPW", "Cox")))
+  cutpoint.type <- threshold.type
+  estimation.method <- match.arg(estimation.method)
   stopifnot(is.numeric(predict.time))
-  if(marker.cutpoint=='median') marker.cutpoint =  median(eval(substitute(marker), data))
-  stopifnot(is.numeric(marker.cutpoint))
-    stopifnot(is.element(se.method, c("bootstrap", "asymptotic")))
+  threshold.type <- match.arg(threshold.type)
+  ci.method <- match.arg(ci.method)
+  stopifnot(is.numeric(threshold))
+  se.method <- match.arg(se.method)
   
+  if(threshold.type != "marker" & se.method == "asymptotic"){
+    stop("asymptotic se calculations only available for threshold.type = 'marker' ")
+    
+  }
+
   #cant return IPW se estimates 
  # if(estimation.method =="IPW" & se.method=="asymptotic") stop("Asymptotic variance calculations are not available for IPW estimates, please use the bootstrap to calculate standard error")
   
@@ -41,8 +48,8 @@ survAM.estimate <- function(time, event, marker,
     if(se.method == "asymptotic"){
       
       estRawOutput <- getEstimatesSP( data = mydata, 
-                                      cutpoint = marker.cutpoint,  
-                                      cutpoint.type = "marker", 
+                                      cutpoint = threshold,  
+                                      cutpoint.type = cutpoint.type, 
                                       measures = measures,
                                       predict.time = predict.time,
                                       CalVar = TRUE)  
@@ -52,7 +59,7 @@ survAM.estimate <- function(time, event, marker,
       if(bootstraps <= 1) stop("bootstraps must be larger than 1")
       #estimates
       estRawOutput<-  getEstimatesSP( data = mydata, 
-                                      cutpoint = marker.cutpoint,
+                                      cutpoint = threshold,
                                       cutpoint.type = cutpoint.type, 
                                       measures = measures,
                                       predict.time = predict.time,
@@ -61,7 +68,7 @@ survAM.estimate <- function(time, event, marker,
       bootests <- matrix(ncol = length(estRawOutput$est), nrow = bootstraps)
       for( b in 1:bootstraps){                  
         bootests[b,] <- unlist(getEstimatesSP( data = mydata[sample.int(N, replace = TRUE),], 
-                                               cutpoint = marker.cutpoint,
+                                               cutpoint = threshold,
                                                cutpoint.type = cutpoint.type,   
                                                measures = measures,
                                                predict.time = predict.time,
@@ -80,8 +87,8 @@ survAM.estimate <- function(time, event, marker,
       if(se.method == "asymptotic"){
         
         estRawOutput <- getEstimatesNP( data = mydata, 
-                                        cutpoint = marker.cutpoint,  
-                                        cutpoint.type = "marker", 
+                                        cutpoint = threshold,  
+                                        cutpoint.type = cutpoint.type, 
                                         measures = measures,
                                         predict.time = predict.time,
                                         CalVar = TRUE)  
@@ -91,7 +98,7 @@ survAM.estimate <- function(time, event, marker,
         if(bootstraps <= 1) stop("bootstraps must be larger than 1")
         #estimates
         estRawOutput<-  getEstimatesNP( data = mydata, 
-                                                        cutpoint = marker.cutpoint,  
+                                                        cutpoint = threshold,  
                                         cutpoint.type = cutpoint.type, 
                                         measures = measures,
                                         predict.time = predict.time,
@@ -101,7 +108,7 @@ survAM.estimate <- function(time, event, marker,
         for( b in 1:bootstraps){   
 
           bootests[b,] <-  unlist(getEstimatesNP( data = mydata[sample.int(N, replace = TRUE),], 
-                                                  cutpoint = marker.cutpoint,  
+                                                  cutpoint = threshold,  
                                                   cutpoint.type = cutpoint.type, 
                                                   measures = measures,
                                                   predict.time = predict.time,
@@ -124,8 +131,8 @@ survAM.estimate <- function(time, event, marker,
      #process the raw estimate data for clean output
      myests <- processRawOutput(estRawOutput, ci.method, alpha)
  
-        
-  myests$cutpoint = marker.cutpoint; 
+  myests$threshold.type = threshold.type; 
+  myests$threshold = threshold; 
   myests$estimation.method = estimation.method; 
   myests$ci.method = ci.method; 
   myests$se.method = se.method;
