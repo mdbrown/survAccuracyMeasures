@@ -9,7 +9,8 @@
  
 
 getEstimatesSP <- function(data, 
-                       cutpoint,  
+                       cutpoint, 
+                       cutpoint.type = "marker", 
                        measures,
                        predict.time,
                        CalVar=TRUE, 
@@ -57,7 +58,7 @@ getEstimatesSP <- function(data,
   
  ###
 
-  cutoff.type = "yes"
+  #cutoff.type = "yes"
   if(cutoff.type != "none"){
     
     #if we use cutoffs, not used in the released version of package
@@ -85,10 +86,15 @@ getEstimatesSP <- function(data,
   
   if (length(measures[measures!="AUC"])>0) {
     typey = measures[measures!="AUC"]; 
-    typex = rep("cutoff", length(typey))
-    vp = rep(cutoff, length(typey));
+ 
+    if(cutpoint.type == "marker") cutpoint.type <- "cutoff"
+    if(cutpoint.type == "quantile") cutpoint.type <- "v" 
+    if(cutpoint.type == "Risk") cutpoint.type <- "RiskT"
+    typex = rep(cutpoint.type, length(typey))
+    
+   vp = rep(cutpoint, length(typey));
 
-    tmpind <- with(RT.out, which.min(abs(cutoff-cutpoint)))
+    tmpind <-  which.min(abs(RT.out[[cutpoint.type]]-cutpoint))
     all.measures = RT.out[tmpind,]
     
     

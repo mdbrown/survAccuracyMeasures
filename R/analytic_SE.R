@@ -119,4 +119,27 @@ Est.Wexp.cpp <-
 ##non parametric
 
 
+Phi.C.new.FUN<-function(xk,dk,Ti, Di, t0){
+      #xk=xi; #dk=data[,7]; 
+        
+        tt=pmin(xk,t0); 
+        TT=sort(unique(pmin(Ti[Di==0], t0)));
+        nk=length(xk); N=length(Ti)
+        junk=summary(survfit(Surv(Ti,1-Di)~1, se.fit=F, type='fl'), TT)
+        pi=junk$n.risk/N
+        dLambda=junk$n.event/junk$n.risk
+        #c(0, diff(junk$surv))
+          tmp.ti=rep(xk, each=nk)
+          tmp.tj=rep(xk, nk)
+          tmp.t=pmin(tmp.ti, tmp.tj, t0)
+          phi2=matrix(sum.I(tmp.t, ">=", TT, dLambda/pi), nk, nk)
+          tmpind <- rank(tt); 
+          pk=summary(survfit(Surv(Ti,1-Di)~1, se.fit=F, type='fl'), sort(tt))$n.risk[tmpind]/N
+          phi1=matrix((tmp.ti<=tmp.tj)*rep(1-dk, each=nk)/rep(pk, nk), nk, nk)
+          phi=phi1-phi2
+          t(phi)
+          #  row of the output is for subject
+            #  colum of the output is for time
+          }
+
 

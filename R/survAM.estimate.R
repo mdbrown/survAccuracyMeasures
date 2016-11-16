@@ -22,7 +22,7 @@ survAM.estimate <- function(time, event, marker,
     stopifnot(is.element(se.method, c("bootstrap", "asymptotic")))
   
   #cant return IPW se estimates 
-  if(estimation.method =="IPW" & se.method=="asymptotic") stop("Asymptotic variance calculations are not available for IPW estimates, please use the bootstrap to calculate standard error")
+ # if(estimation.method =="IPW" & se.method=="asymptotic") stop("Asymptotic variance calculations are not available for IPW estimates, please use the bootstrap to calculate standard error")
   
   #set some defaults
   measures = c('all')
@@ -42,6 +42,7 @@ survAM.estimate <- function(time, event, marker,
       
       estRawOutput <- getEstimatesSP( data = mydata, 
                                       cutpoint = marker.cutpoint,  
+                                      cutpoint.type = "marker", 
                                       measures = measures,
                                       predict.time = predict.time,
                                       CalVar = TRUE)  
@@ -51,18 +52,20 @@ survAM.estimate <- function(time, event, marker,
       if(bootstraps <= 1) stop("bootstraps must be larger than 1")
       #estimates
       estRawOutput<-  getEstimatesSP( data = mydata, 
-                                                     cutpoint = marker.cutpoint,  
-                                                     measures = measures,
-                                                     predict.time = predict.time,
-                                                     CalVar = FALSE)
+                                      cutpoint = marker.cutpoint,
+                                      cutpoint.type = cutpoint.type, 
+                                      measures = measures,
+                                      predict.time = predict.time,
+                                      CalVar = FALSE)
       #bootstrap ci's
       bootests <- matrix(ncol = length(estRawOutput$est), nrow = bootstraps)
       for( b in 1:bootstraps){                  
         bootests[b,] <- unlist(getEstimatesSP( data = mydata[sample.int(N, replace = TRUE),], 
-                                                        cutpoint = marker.cutpoint,  
-                                                        measures = measures,
-                                                        predict.time = predict.time,
-                                                        CalVar = FALSE)$est) 
+                                               cutpoint = marker.cutpoint,
+                                               cutpoint.type = cutpoint.type,   
+                                               measures = measures,
+                                               predict.time = predict.time,
+                                               CalVar = FALSE)$est) 
       }
       estRawOutput$se <- data.frame(t(apply(bootests, 2, sd, na.rm = TRUE)))
       names(estRawOutput$se) = names(estRawOutput$estimates)
@@ -78,6 +81,7 @@ survAM.estimate <- function(time, event, marker,
         
         estRawOutput <- getEstimatesNP( data = mydata, 
                                         cutpoint = marker.cutpoint,  
+                                        cutpoint.type = "marker", 
                                         measures = measures,
                                         predict.time = predict.time,
                                         CalVar = TRUE)  
@@ -88,19 +92,20 @@ survAM.estimate <- function(time, event, marker,
         #estimates
         estRawOutput<-  getEstimatesNP( data = mydata, 
                                                         cutpoint = marker.cutpoint,  
-                                                        measures = measures,
-                                                        predict.time = predict.time,
-                                                        CalVar = FALSE  
-                                                       )
+                                        cutpoint.type = cutpoint.type, 
+                                        measures = measures,
+                                        predict.time = predict.time,
+                                        CalVar = FALSE )
         #bootstrap ci's
         bootests <- matrix(ncol = length(estRawOutput$est), nrow = bootstraps)
         for( b in 1:bootstraps){   
 
           bootests[b,] <-  unlist(getEstimatesNP( data = mydata[sample.int(N, replace = TRUE),], 
-                                                          cutpoint = marker.cutpoint,  
-                                                          measures = measures,
-                                                          predict.time = predict.time,
-                                                          CalVar = FALSE)$est) 
+                                                  cutpoint = marker.cutpoint,  
+                                                  cutpoint.type = cutpoint.type, 
+                                                  measures = measures,
+                                                  predict.time = predict.time,
+                                                  CalVar = FALSE)$est) 
         }
  
         estRawOutput$se <- data.frame(t(apply(bootests, 2, sd, na.rm = TRUE)))

@@ -1,7 +1,8 @@
 
 
 getEstimatesNP <- function(data, 
-                         cutpoint,  
+                         cutpoint, 
+                         cutpoint.type = "marker", 
                          measures,
                          predict.time,
                          CalVar = TRUE, subcohort=FALSE)
@@ -44,12 +45,19 @@ getEstimatesNP <- function(data,
   nm.acc = c("FPR","TPR","NPV","PPV"); 
   acc.ck = data.frame("cutoff"=ck,"FPR"=FPR.ck,"TPR"=TPR.ck,"NPV"=NPV.ck, "PPV"=PPV.ck)    
   
-
   if(!is.null(c0)){
-    tmpind.c0 = sum.I(c0, ">=", ck); 
+    
+    
+    if(cutpoint.type == "marker") cutpoint.type <- "cutoff"
+    if(cutpoint.type == "quantile") cutpoint.type <- "v" 
+    if(cutpoint.type == "Risk") stop("cutpoint.type = 'Risk' not allowed for IPW estimates.")
+    
+    tmpind.c0 = which.min(abs(acc.ck[[cutpoint.type]]-cutpoint))#sum.I(c0, ">=", ck); 
     acc.c0 = acc.ck[tmpind.c0,]; 
     F.c0 = Fck[tmpind.c0]
-  }else{ acc.c0 = acc.ck }
+    
+  }else{ acc.c0 <- acc.ck }
+  
   est= data.frame("AUC" = AUC, acc.c0[-1])
 
   est  = est[,measures]
@@ -61,8 +69,8 @@ getEstimatesNP <- function(data,
     #this portion of the code is not functional
     
     ###### Variance calculation below ########
-   # Phi=Phi.C.new.FUN(xk=data$xi,dk=data$di, Ti=data0$xi, Di=data0$di, t0 = t0)
-    Phi = NA #this portion of the code is not functional
+    Phi=Phi.C.new.FUN(xk=data$xi,dk=data$di, Ti=data0$xi, Di=data0$di, t0 = t0)
+    #Phi = NA #this portion of the code is not functional
     ## doing u0 and c0 together
     c.u0 = NULL; acc.u0.temp=NULL; F.c0.b =F.c0
     

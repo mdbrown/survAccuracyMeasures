@@ -45,6 +45,15 @@ survAM.estimate(time =survTime,
                 predict.time = 1, 
                 marker.cutpoint = 0.5, 
                 bootstraps = 50)
+
+survAM.estimate(time =survTime, 
+                event = status, 
+                marker = Y,
+                data = SimData, 
+                estimation.method = "IPW",    
+                se.method = "asymptotic",
+                predict.time = 1, 
+                marker.cutpoint = 0.5)
 ```
 
 Alternatively, we can calculate semi-parametric estimates based on a Cox proportional hazards model:
