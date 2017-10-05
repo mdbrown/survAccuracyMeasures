@@ -22,7 +22,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          
+
           <div class="nav-collapse collapse">
             <ul class="nav pull-right">
 
@@ -31,6 +31,8 @@
                 <ul class="dropdown-menu">
                   <li><a href="http://mdbrown.github.io/survRpackages/">Home</a></li>
                   <li class="nav-header">R packages</li>
+                  <li><a href="http://mdbrown.github.io/AIPWmeasures/">AIPWmeasures</a></li>
+                  <li><a href="http://mdbrown.github.io/partlyconditional/">partlyconditional</a></li>
                   <li><a href="http://mdbrown.github.io/survAccuracyMeasures/">survAccuracyMeasures</a></li>
                   <li><a href="http://mdbrown.github.io/survMarkerTwoPhase/">survMarkerTwoPhase</a></li>
                   <li><a href="http://mdbrown.github.io/survCompetingRisk/">survCompetingRisk</a></li>
@@ -77,7 +79,7 @@
 <img src="http://latex.codecogs.com/gif.latex?\inline&space;\dpi{200}&space;PPV_t(c)&space;=&space;P(T\leq&space;t|Y>c)" title="PPV_t(c) = P(T\leq t|Y>c)" />
 <img src="http://latex.codecogs.com/gif.latex?\inline&space;\dpi{200}&space;NPV_t(c)&space;=&space;P(T&space;>&space;t|Y\leq&space;c)" title="NPV_t(c) = P(T > t|Y\leq c)" />
 <img src="http://latex.codecogs.com/gif.latex?\dpi{200}&space;AUC_t&space;=&space;\int_0^1&space;TPR_t(FPR_t^{-1}(u))du" title="AUC_t = \int_0^1 TPR_t(FPR_t^{-1}(u))du" />
-</div>  
+</div>
 <div id="estimation" class="section level2">
 <h2>Estimation</h2>
 <p>Nonparametric estimates are calculated using inverse probability weighting, while semiparametric estimates are based on a Cox proportional hazards model. For detailed information regarding estimation methods, see references below.</p>
@@ -129,28 +131,28 @@
 
 <span class="c">##non-parametric estimates with bootstrap standard errrors</span>
 <span class="c">##in practice 'bootstraps' should be set to a larger value</span>
-<span class="c">survAM.estimate(time =survTime, 
-                event = status, 
+<span class="c">survAM.estimate(time =survTime,
+                event = status,
                 marker = Y,
-                data = SimData, 
-                estimation.method = &quot;IPW&quot;,    
+                data = SimData,
+                estimation.method = &quot;IPW&quot;,
                 se.method = &quot;bootstrap&quot;,
-                predict.time = 1, 
-                marker.cutpoint = 0, 
+                predict.time = 1,
+                marker.cutpoint = 0,
                 bootstraps = 50)</span>
 </pre></div>
 
 <pre><code>
 ## Non-Parametric IPW estimates of accuracy measures:
 ##    (SE's calculated using the bootstrap)
-## 
+##
 ##         estimate     se      lower 0.95  upper 0.95
-## AUC        0.786     0.032         0.717       0.841 
-## TPR(c)     0.769     0.054         0.648       0.858 
-## FPR(c)     0.410     0.024         0.364       0.459 
-## PPV(c)     0.231     0.030         0.177       0.295 
-## NPV(c)     0.941     0.015         0.905       0.964 
-## 
+## AUC        0.786     0.032         0.717       0.841
+## TPR(c)     0.769     0.054         0.648       0.858
+## FPR(c)     0.410     0.024         0.364       0.459
+## PPV(c)     0.231     0.030         0.177       0.295
+## NPV(c)     0.941     0.015         0.905       0.964
+##
 ##  marker cutpoint: c = 0
 </code></pre>
 
@@ -160,55 +162,55 @@
 <span class="c"># semi-parametric estimates assuming a cox model</span>
 <span class="c">##in practice 'bootstraps' should be set to a larger value</span>
 
-<span class="c">survAM.estimate(time =survTime, 
-                event = status, 
+<span class="c">survAM.estimate(time =survTime,
+                event = status,
                 marker = Y,
-                data = SimData, 
+                data = SimData,
                 estimation.method = &quot;Cox&quot;,
                 se.method = &quot;bootstrap&quot;,
-                predict.time = 1, 
-                marker.cutpoint = 0, 
+                predict.time = 1,
+                marker.cutpoint = 0,
                 bootstraps = 50)</span>
 </pre></div>
 
 <pre><code>
-## 
+##
 ## Semi-Parametric Cox estimates of accuracy measures:
 ##    (SE's calculated using the bootstrap)
-## 
+##
 ##         estimate     se      lower 0.95  upper 0.95
-## coef       1.010     0.092         0.829       1.191 
-## AUC        0.768     0.021         0.724       0.808 
-## TPR(c)     0.788     0.031         0.722       0.842 
-## FPR(c)     0.412     0.022         0.369       0.457 
-## PPV(c)     0.241     0.029         0.189       0.302 
-## NPV(c)     0.943     0.011         0.918       0.961 
-## 
+## coef       1.010     0.092         0.829       1.191
+## AUC        0.768     0.021         0.724       0.808
+## TPR(c)     0.788     0.031         0.722       0.842
+## FPR(c)     0.412     0.022         0.369       0.457
+## PPV(c)     0.241     0.029         0.189       0.302
+## NPV(c)     0.943     0.011         0.918       0.961
+##
 ##  marker cutpoint: c = 0
 </code></pre>
 <div class="highlight highlight-r"><pre>
 <span class="c">## here we calculate the SE's based on the asymptotic properties of the Cox estimator. </span>
-<span class="c">survAM.estimate(time =survTime, 
-                event = status, 
+<span class="c">survAM.estimate(time =survTime,
+                event = status,
                 marker = Y,
-                data = SimData, 
-                estimation.method = &quot;Cox&quot;,    
+                data = SimData,
+                estimation.method = &quot;Cox&quot;,
                 se.method = &quot;asymptotic&quot;,
-                predict.time = 1, 
+                predict.time = 1,
                 marker.cutpoint = 0)</span>
 </pre></div>
-<pre><code>## 
+<pre><code>##
 ## Semi-Parametric Cox estimates of accuracy measures:
 ##    (SE's calculated using asymptotic variance)
-## 
+##
 ##         estimate     se      lower 0.95  upper 0.95
-## coef       1.010     0.085         0.842       1.177 
-## AUC        0.768     0.020         0.727       0.805 
-## TPR(c)     0.788     0.027         0.731       0.836 
-## FPR(c)     0.412     0.023         0.368       0.459 
-## PPV(c)     0.241     0.028         0.191       0.300 
-## NPV(c)     0.943     0.009         0.924       0.958 
-## 
+## coef       1.010     0.085         0.842       1.177
+## AUC        0.768     0.020         0.727       0.805
+## TPR(c)     0.788     0.027         0.731       0.836
+## FPR(c)     0.412     0.023         0.368       0.459
+## PPV(c)     0.241     0.028         0.191       0.300
+## NPV(c)     0.943     0.009         0.924       0.958
+##
 ##  marker cutpoint: c = 0</code></pre>
 <p>For more information see <code>?survAM.estimate</code>. </p>
 
@@ -233,7 +235,7 @@
     <script src="http://code.jquery.com/jquery.js"></script>
     <script src="js/bootstrap.min.js"></script>
 
-    
+
 
   </body>
 </html>
