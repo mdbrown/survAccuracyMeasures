@@ -63,7 +63,7 @@ getEstimatesNP <- function(data,
   est  = est[,measures]
   #est= list("AUC" = AUC, "ACC.u0"=acc.uk[tmpind.u0,-c(1,ind0)],"ACC.c0"=acc.c0, "ACC.all" = acc.ck) ##output all cutoff
   if(!CalVar){
-   list("estimates" = est)
+   list("estimates" = est, "roc" = acc.ck)
   }else{
     
     #this portion of the code is not functional
@@ -106,10 +106,12 @@ getEstimatesNP <- function(data,
       se.c0 = data.frame(matrix(se.c0,nrow=length(c0)))
       names(se.c0) = nm.acc    
     }
-   
+
+    names(acc.ck ) <- c("marker", "FPR", "TPR", "NPV", "PPV")
+    acc.ck <- acc.ck[, c("marker", "FPR", "TPR", "PPV", "NPV")]
     se <- data.frame("AUC" = se.auc, se.c0)
     se <- se[,measures] 
-    list("estimates" = est,"se" =se) 
+    list("estimates" = est,"se" =se, "roc" = acc.ck ) 
   }	
   
   

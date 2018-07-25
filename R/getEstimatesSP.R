@@ -79,7 +79,7 @@ getEstimatesSP <- function(data,
   RT.out = EstRTall(data.RT) 
   AUC       <- RT.out[[2]]  
   RT.out    <- RT.out[[1]]
-  
+
   }
   
   
@@ -113,7 +113,7 @@ getEstimatesSP <- function(data,
     subdata = cbind(data[ooo,],data.RT[,c(2)], linearY[ooo])
     names(subdata)=c("times","status","y","wi","vi","Sy","linearY")
     if(cutoff.type=="none") cutoffs = NA
-    jjunk = Est.Wexp.cpp(subdata, 
+    jjunk = Est.Wexp(subdata, 
                          N,
                          RT.out,
                          predict.time,
@@ -121,8 +121,7 @@ getEstimatesSP <- function(data,
                          typex,
                          typey, 
                          resid(fit, "score")[ooo], 
-                         fit$var, 
-                         cutoffs = cutoffs)
+                         fit$var)
     
   
     Wexp = data.frame(cbind(jjunk$Wexp.beta,jjunk$Wexp.AUC,jjunk$Wexp.vp))
@@ -131,9 +130,13 @@ getEstimatesSP <- function(data,
     
     se <- data.frame(t(se))
     names(se) = c("coef", measures)
-    list(estimates = est, se = se, fit = fit) 
+    names(RT.out) <- c("marker", "risk", "marker.percentile", "FPR", "TPR", "PPV", "NPV") 
+    list(estimates = est, se = se, fit = fit, roc = RT.out) 
       
 		
-  } else {list(estimates = data.frame(est), fit = fit)}
+  } else {
+    names(RT.out) <- c("marker", "risk", "marker.percentile", "FPR", "TPR", "PPV", "NPV") 
+    list(estimates = data.frame(est), fit = fit, roc = RT.out)
+    }
 }
 

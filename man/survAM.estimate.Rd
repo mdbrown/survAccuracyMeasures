@@ -5,7 +5,8 @@
   survAM.estimate(time, event, marker,
                              data, 
                              predict.time,  
-                             marker.cutpoint = 'median', 
+                             threshold, 
+                             threshold.type = c("marker", "FPR", "TPR", "PPV", "NPV"),
                              estimation.method = "IPW", 
                              ci.method = "logit.transformed",
                              se.method = "bootstrap",
@@ -27,9 +28,9 @@
   \item{predict.time}{numeric value of the timepoint of
   interest for which to estimate the risk measures}
 
-  \item{marker.cutpoint}{numeric value indicating the value of the
-  cutpoint 'c' at which to estimate 'FPR', 'TPR', 'NPV' or
-  'PPV'. default is \code{'median'} which takes cutpoint as the marker median.}
+  \item{threshold}{numeric value indicating the value of the
+  cutpoint 'c' at which to estimate other summary measures. The default is to use the threshold on the marker scale.  }
+    \item{threshold.type}{ Defaults to "marker", but other options include "TPR", "FPR", "PPV", or "NPV" indicating. For example, setting the threshold equal to 0.5 and threshold.type to 'FPR' will estimate measures at the threshold such that FPR = .5.  }
   
   \item{estimation.method}{ Either "IPW" for non-parametric IPW estimates (default) or 
   "Cox" for semi-parametric estimates that use a Cox proportional hazards model.

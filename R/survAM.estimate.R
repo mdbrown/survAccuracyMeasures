@@ -22,7 +22,9 @@ survAM.estimate <- function(time, event, marker,
   ci.method <- match.arg(ci.method)
   stopifnot(is.numeric(threshold))
   se.method <- match.arg(se.method)
-  
+  if(threshold.type != "marker" ) {
+    if(threshold <= 0 | threshold >= 1 ) stop("threshold must be between 0 and 1 if threshold.type is not 'marker'")
+  }
   if(threshold.type != "marker" & se.method == "asymptotic"){
     stop("asymptotic se calculations only available for threshold.type = 'marker' ")
     
@@ -130,7 +132,7 @@ survAM.estimate <- function(time, event, marker,
 
      #process the raw estimate data for clean output
      myests <- processRawOutput(estRawOutput, ci.method, alpha)
- 
+     myests$roc <-  estRawOutput$roc
   myests$threshold.type = threshold.type; 
   myests$threshold = threshold; 
   myests$estimation.method = estimation.method; 

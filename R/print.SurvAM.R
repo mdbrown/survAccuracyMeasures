@@ -51,6 +51,7 @@ if(x$threshold.type != "marker"){
   cat(paste0("marker threshold: c = ",  x$threshold, "\n"))
 }
 cat("\n")
+cat("Information for ROC curve found in x$roc.")
   
   
 }

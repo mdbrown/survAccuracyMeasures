@@ -17,7 +17,7 @@ Standard errors for estimates can be obtained by bootstrapping. Asymptotic stand
 #install the package from github
 # download the package from github
 if (!require("devtools")) install.packages("devtools")
-devtools::install_github("survAccuracyMeasures", "mdbrown")
+devtools::install_github("mdbrown/survAccuracyMeasures")
 ```
 
 ```{r}
@@ -32,19 +32,18 @@ head(SimData)
 Estimate all measures, using the bootstrap to estimate standard errors. First we obtain non-parametric estimates using inverse probablity weighting:
 
 ```{r}
-#Estimate all the measures at prediction time 2, with a marker cutpoint at 0. 
 
 #non-parametric estimates with bootstrap standard errrors
 ##in practice 'bootstraps' should be set to a larger value
-survAM.estimate(time =survTime, 
-                event = status, 
+survAM.estimate(time =survTime,
+                event = status,
                 marker = Y,
-                data = SimData, 
-                estimation.method = "IPW",    
+                data = SimData,
+                estimation.method = "IPW",
                 se.method = "bootstrap",
-                predict.time = 1, 
-                threshold = 0.5, 
-                threshold.type = 'marker', 
+                predict.time = 1,
+                threshold = 0.5,
+                threshold.type = "marker", 
                 bootstraps = 50)
 
 survAM.estimate(time =survTime, 
@@ -71,7 +70,7 @@ survAM.estimate(time =survTime,
                 estimation.method = "Cox",
                 se.method = "bootstrap",
                 predict.time = 1, 
-                threshold = 0.5, 
+                threshold = 0, 
                 threshold.type = 'marker',
                 bootstraps = 50)
 
@@ -84,15 +83,14 @@ survAM.estimate(time =survTime,
                 estimation.method = "Cox",    
                 se.method = "asymptotic",
                 predict.time = 1, 
-                threshold = 0.5, 
+                threshold =  0.5, 
                 threshold.type = 'marker')
 
 ```
 
+The threshold can also be selected by fixing the FPR, TPR, PPV, or NPV using the `threshold.type` argument. Below we select the threshold such that the FPR is fixed to 0.05. 
 
 ```{r}
-#Estimate all the measures at prediction time 2, with a marker cutpoint at 0. 
-
 #non-parametric estimates with bootstrap standard errrors
 ##in practice 'bootstraps' should be set to a larger value
 survAM.estimate(time =survTime, 
@@ -102,43 +100,54 @@ survAM.estimate(time =survTime,
                 estimation.method = "IPW",    
                 se.method = "bootstrap",
                 predict.time = 1, 
-                threshold = .5, 
-                threshold.type = 'PPV', 
+                threshold =  .05, 
+                threshold.type = 'FPR', 
                 bootstraps = 50)
 
 ```
 
-Alternatively, we can calculate semi-parametric estimates based on a Cox proportional hazards model:
 
+## Plot ROC curves 
+
+Information to plot an ROC curve can be accessed 
 
 ```{r}
-#semi-parametric estimates assuming a cox model
-##in practice 'bootstraps' should be set to a larger value
-survAM.estimate(time =survTime, 
-                event = status, 
-                marker = Y,
-                data = SimData, 
-                estimation.method = "Cox",
-                se.method = "bootstrap",
-                predict.time = 1, 
-                threshold = 0.05, 
-                threshold.type = 'FPR',
-                bootstraps = 50)
 
-
-## here we calculate the SE's based on the asymptotic properties of the Cox estimator.  
-survAM.estimate(time =survTime, 
-                event = status, 
+est.ipw <- survAM.estimate(time =survTime,
+                event = status,
                 marker = Y,
-                data = SimData, 
-                estimation.method = "Cox",    
+                data = SimData,
+                estimation.method = "IPW",
                 se.method = "asymptotic",
-                predict.time = 1, 
-                threshold = 0.05, 
-                threshold.type = 'FPR')
+                predict.time = 1,
+                threshold = 0.5,
+                threshold.type = "marker")
+#information for roc curve 
+head(est.ipw$roc) 
+
+est.cox <- survAM.estimate(time =survTime,
+                event = status,
+                marker = Y,
+                data = SimData,
+                estimation.method = "Cox",
+                se.method = "asymptotic",
+                predict.time = 1,
+                threshold = 0.5,
+                threshold.type = "marker")
+
+#information for roc curve 
+head(est.cox$roc) 
+
+
+plot(est.ipw$roc$FPR, est.ipw$roc$TPR, type = "l", 
+     xlab = "FPR", ylab = "TPR", 
+     col = "dodgerblue", lwd = 1.5)
+lines(est.cox$roc$FPR, est.cox$roc$TPR, col = "firebrick", lwd = 1.5)
+abline(0,1, lty = 2)
+
+legend("bottomright", legend = c("IPW", "Cox"), col = c("dodgerblue", "firebrick"), lwd = c(1.5, 1.5), lty = c(1,1))
 
 ```
-
 
 
 For more information see `?survAM.estimate`. 
